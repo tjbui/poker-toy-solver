@@ -23,19 +23,39 @@ export default function EquityCalculatorPage() {
   ])
 
   const [activeTarget, setActiveTarget] = useState<CardSelectionTarget | null>(null)
-
   const [result, setResult] = useState<EquityResult | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  const [engine, setEngine] = useState<'cpu' | 'gpu'>('cpu')
-  const [simulations, setSimulations] = useState(1000000)
 
   const usedCards = useMemo(() => {
     return [...heroCards, ...villainCards, ...communityCards].filter(
       (card): card is CardCode => card !== null && card !== 'BACK',
     )
   }, [heroCards, villainCards, communityCards])
+
+  async function handleSimulate() {
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const request = buildEquityRequest(
+        heroCards,
+        villainCards,
+        communityCards,
+        1000000,
+        'cpu',
+      )
+
+      const data = await calculateEquity(request)
+      setResult(data)
+    } catch (err) {
+      console.error(err)
+      setResult(null)
+      setError('Could not run simulation. Make sure the required cards are selected.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   function handleCardClick(section: CardSelectionTarget['section'], index: number) {
     setActiveTarget({ section, index })
@@ -61,29 +81,7 @@ export default function EquityCalculatorPage() {
     }
 
     setActiveTarget(null)
-  }
-
-  async function handleSimulate() {
-    try {
-      setIsLoading(true)
-      setError(null)
-
-      const request = buildEquityRequest(
-        heroCards,
-        villainCards,
-        communityCards,
-        simulations,
-        engine,
-      )
-
-      const data = await calculateEquity(request)
-      setResult(data)
-    } catch (err) {
-      console.error(err)
-      setError('Failed to calculate equity.')
-    } finally {
-      setIsLoading(false)
-    }
+    setError(null)
   }
 
   return (
@@ -108,125 +106,60 @@ export default function EquityCalculatorPage() {
             </TableSection>
           </div>
 
-          <div className="bottom-layout">
+          <div className="bottom-row">
             <TableSection title="Villain Cards">
               <CardRow
                 cards={villainCards}
                 onCardClick={(index) => handleCardClick('villain', index)}
               />
             </TableSection>
+          </div>
 
-            <section className="side-panel">
-              <div className="controls-row">
-                <div className="control-group">
-                  <label htmlFor="engine-select" className="control-label">
-                    Engine
-                  </label>
-                  <select
-                    id="engine-select"
-                    className="control-input"
-                    value={engine}
-                    onChange={(e) => setEngine(e.target.value as 'cpu' | 'gpu')}
-                  >
-                    <option value="cpu">CPU</option>
-                    <option value="gpu">GPU</option>
-                  </select>
-                </div>
+          <div className="action-row">
+            <button
+              className="simulate-button"
+              onClick={handleSimulate}
+              disabled={isLoading}
+              type="button"
+            >
+              {isLoading ? 'Running...' : 'Run Simulation'}
+            </button>
+          </div>
 
-                <div className="control-group">
-                  <label htmlFor="simulations-input" className="control-label">
-                    Simulations
-                  </label>
-                  <input
-                    id="simulations-input"
-                    className="control-input"
-                    type="number"
-                    min={1}
-                    step={1000}
-                    value={simulations}
-                    onChange={(e) => setSimulations(Number(e.target.value))}
-                  />
-                </div>
-
-                <button
-                  className="simulate-button"
-                  onClick={handleSimulate}
-                  disabled={isLoading}
-                  type="button"
-                >
-                  {isLoading ? 'Running Simulation...' : 'Calculate Equity'}
-                </button>
+          <TableSection title="Results">
+            {!result ? (
+              <div className="results-list">
+                <p>Hero win percentage: NA</p>
+                <p>Villain win percentage: NA</p>
+                <p>Tie percentage: NA</p>
+                <p>_____ hands simulated in _____ms</p>
               </div>
-
-              <div className="results-panel">
-                <h2 className="results-title">Results</h2>
-
-                {error && <p className="error-text">{error}</p>}
-
-                {!error && !result && !isLoading && (
-                  <p className="placeholder-text">
-                    Run a simulation to see equity results.
-                  </p>
-                )}
-
-                {!error && result && (
-                  <div className="results-grid">
-                    <div className="result-card">
-                      <span className="result-label">Hero Win %</span>
-                      <span className="result-value">{result.heroWinPct.toFixed(2)}%</span>
-                    </div>
-
-                    <div className="result-card">
-                      <span className="result-label">Villain Win %</span>
-                      <span className="result-value">{result.villainWinPct.toFixed(2)}%</span>
-                    </div>
-
-                    <div className="result-card">
-                      <span className="result-label">Tie %</span>
-                      <span className="result-value">{result.tiePct.toFixed(2)}%</span>
-                    </div>
-
-                    <div className="result-card">
-                      <span className="result-label">Hands Simulated</span>
-                      <span className="result-value">
-                        {result.simulatedHands.toLocaleString()}
-                      </span>
-                    </div>
-
-                    <div className="result-card">
-                      <span className="result-label">Runtime</span>
-                      <span className="result-value">
-                        {result.runtimeMs >= 1000
-                          ? `${(result.runtimeMs / 1000).toFixed(2)} s`
-                          : `${result.runtimeMs.toFixed(2)} ms`}
-                      </span>
-                    </div>
-
-                    <div className="result-card">
-                      <span className="result-label">Engine</span>
-                      <span className="result-value engine-pill">{result.engine}</span>
-                    </div>
-                  </div>
-                )}
+            ) : (
+              <div className="results-list">
+                <p>Hero win percentage: {result.heroWinPct.toFixed(2)}%</p>
+                <p>Villain win percentage: {result.villainWinPct.toFixed(2)}%</p>
+                <p>Tie percentage: {result.tiePct.toFixed(2)}%</p>
+                <p>
+                  {result.simulatedHands.toLocaleString()} hands simulated in{' '}
+                  {result.runtimeMs}ms
+                </p>
               </div>
+            )}
+          </TableSection>
 
-              <div className="github-row">
-                <a
-                  href="https://github.com/tjbui/poker-equity"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="github-link-icon"
-                  aria-label="View GitHub Repository"
-                  title="View GitHub Repository"
-                >
-                  <img
-                    src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
-                    alt="GitHub"
-                    className="github-logo"
-                  />
-                </a>
-              </div>
-            </section>
+          <div className="github-row">
+            <a
+              href="https://github.com/tjbui/poker-equity"
+              target="_blank"
+              rel="noreferrer"
+              className="github-link-icon"
+            >
+              <img
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+                alt="GitHub"
+                className="github-logo"
+              />
+            </a>
           </div>
         </div>
       </div>
