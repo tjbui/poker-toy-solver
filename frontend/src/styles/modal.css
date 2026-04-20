@@ -1,0 +1,68 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 1000;
+}
+
+.card-picker-modal.compact {
+  width: min(620px, 94vw);
+  background: #f6f7f9;
+  border: 1px solid #d9dee7;
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.28);
+}
+
+.picker-top-row {
+  margin-bottom: 0.75rem;
+}
+
+.back-card-button {
+  width: 52px;
+  height: 72px;
+  border: 1px solid #d8dde5;
+  border-radius: 8px;
+  background: white;
+  padding: 3px;
+  cursor: pointer;
+}
+
+.back-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.compact-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.compact-row {
+  display: grid;
+  grid-template-columns: repeat(13, 1fr);
+  gap: 0.35rem;
+}
+
+.rank-suit-button {
+  height: 58px;
+  border: 1px solid #d8dde5;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.rank-suit-button.disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}

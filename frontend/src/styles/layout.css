@@ -1,0 +1,115 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background:
+    radial-gradient(circle at top, rgba(40, 90, 55, 0.35), transparent 35%),
+    radial-gradient(circle at bottom, rgba(15, 50, 30, 0.45), transparent 40%),
+    linear-gradient(135deg, #103b26, #0b2b1b 55%, #081f14);
+}
+
+.table-shell {
+  width: min(1200px, 100%);
+  min-height: 700px;
+  border-radius: 28px;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.02)),
+    radial-gradient(circle, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: auto, 18px 18px;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  padding: 2.5rem;
+  backdrop-filter: blur(4px);
+}
+
+.title {
+  margin: 0 0 2rem 0;
+  text-align: center;
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: #f3f7f4;
+}
+
+.table-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+}
+
+.top-row {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.bottom-row {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.table-section {
+  padding: 1.5rem;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.section-title {
+  margin: 0 0 1rem 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #edf6ef;
+}
+
+.name {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 500;
+}
+
+.github-row {
+  display: flex;
+  justify-content: space-between;  
+}
+
+.github-link-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.github-link-icon:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.github-logo {
+  width: 36px;
+  height: 36px;
+  filter: invert(1);
+}
+
+@media (max-width: 900px) {
+  .top-row {
+    grid-template-columns: 1fr;
+  }
+
+  .table-shell {
+    padding: 1.5rem;
+  }
+
+  .github-row {
+    justify-content: center;
+  }
+}

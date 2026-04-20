@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react'
-import CardPickerModal from './CardPickerModal'
-import CardRow from './CardRow'
-import TableSection from './TableSection'
-import { calculateEquity } from './api'
+import CardPickerModal from '../components/CardPickerModal'
+import CardRow from '../components/CardRow'
+import TableSection from '../components/TableSection'
+import { calculateEquity } from '../pages/api'
 import {
   buildEquityRequest,
   type CardCode,
   type CardSelectionTarget,
   type CardValue,
   type EquityResult,
-} from './cards'
+} from '../lib/cards'
 
 export default function EquityCalculatorPage() {
   const [heroCards, setHeroCards] = useState<CardValue[]>(['BACK', 'BACK'])
@@ -87,6 +87,22 @@ export default function EquityCalculatorPage() {
   return (
     <div className="page">
       <div className="table-shell">
+        <div className="github-row">
+          <p className="name">Tru Bui</p>
+          <a
+            href="https://github.com/tjbui/poker-equity"
+            target="_blank"
+            rel="noreferrer"
+            className="github-link-icon"
+          >
+            <img
+              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+              alt="GitHub"
+              className="github-logo"
+            />
+          </a>
+        </div>
+        
         <h1 className="title">Poker Equity Calculator</h1>
 
         <div className="table-layout">
@@ -147,20 +163,7 @@ export default function EquityCalculatorPage() {
             )}
           </TableSection>
 
-          <div className="github-row">
-            <a
-              href="https://github.com/tjbui/poker-equity"
-              target="_blank"
-              rel="noreferrer"
-              className="github-link-icon"
-            >
-              <img
-                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
-                alt="GitHub"
-                className="github-logo"
-              />
-            </a>
-          </div>
+          
         </div>
       </div>
 

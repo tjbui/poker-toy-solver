@@ -93,7 +93,7 @@ export function getDisplayRank(rank: Rank): string {
 }
 
 export function getBackImage(): string {
-  return new URL('./assets/card-back.png', import.meta.url).href
+  return new URL('../assets/card-back.png', import.meta.url).href
 }
 
 export function normalizeCard(value: CardValue): CardCode | null {

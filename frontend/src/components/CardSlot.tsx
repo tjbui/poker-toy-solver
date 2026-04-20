@@ -1,10 +1,10 @@
-import type { CardValue, Rank, Suit } from './cards'
+import type { CardValue, Rank, Suit } from '../lib/cards'
 import {
   getBackImage,
   getDisplayRank,
   getSuitClass,
   getSuitSymbol,
-} from './cards'
+} from '../lib/cards'
 
 type CardSlotProps = {
   value: CardValue
