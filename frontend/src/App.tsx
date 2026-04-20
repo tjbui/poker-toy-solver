@@ -1,5 +1,5 @@
 import './App.css'
-import EquityCalculatorPage from './pages/EquityCalculatorPage'
+import EquityCalculatorPage from './EquityCalculatorPage'
 
 function App() {
   return <EquityCalculatorPage />

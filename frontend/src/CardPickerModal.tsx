@@ -1,43 +1,17 @@
-import { RANKS, SUITS } from '../data/cards'
-import type { CardCode, CardValue, Rank, Suit } from '../types/cards'
+import { RANKS, SUITS } from './cards'
+import type { CardCode, CardValue } from './cards'
+import {
+  getBackImage,
+  getDisplayRank,
+  getSuitClass,
+  getSuitSymbol,
+} from './cards'
 
 type CardPickerModalProps = {
   isOpen: boolean
   usedCards: CardCode[]
   onClose: () => void
   onSelect: (value: CardValue) => void
-}
-
-function getSuitSymbol(suit: Suit) {
-  switch (suit) {
-    case 'S':
-      return '♠'
-    case 'H':
-      return '♥'
-    case 'C':
-      return '♣'
-    case 'D':
-      return '♦'
-  }
-}
-
-function getSuitClass(suit: Suit) {
-  switch (suit) {
-    case 'S':
-    case 'C':
-      return 'suit-black'
-    case 'H':
-    case 'D':
-      return 'suit-red'
-  }
-}
-
-function getDisplayRank(rank: Rank) {
-  return rank === 'T' ? '10' : rank
-}
-
-function getBackImage() {
-  return new URL('../assets/cards/card-back.png', import.meta.url).href
 }
 
 export default function CardPickerModal({

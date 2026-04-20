@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react'
-import CardPickerModal from '../components/CardPickerModal'
-import CardRow from '../components/CardRow'
-import TableSection from '../components/TableSection'
-import type { CardCode, CardSelectionTarget, CardValue } from '../types/cards'
+import CardPickerModal from './CardPickerModal'
+import CardRow from './CardRow'
+import TableSection from './TableSection'
+import type { CardCode, CardSelectionTarget, CardValue } from './cards'
 
 export default function EquityCalculatorPage() {
   const [heroCards, setHeroCards] = useState<CardValue[]>(['BACK', 'BACK'])

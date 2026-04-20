@@ -1,5 +1,5 @@
 import CardSlot from './CardSlot'
-import type { CardValue } from '../types/cards'
+import type { CardValue } from './cards'
 
 type CardRowProps = {
   cards: CardValue[]
