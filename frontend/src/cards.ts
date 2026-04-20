@@ -23,6 +23,32 @@ export type CardSelectionTarget = {
   index: number
 }
 
+export type PlayerMode = 'exact' | 'range'
+export type HandClass = string
+
+export type PlayerRequest = {
+  mode: PlayerMode
+  cards: (CardCode | null)[]
+  range: HandClass[]
+}
+
+export type EquityRequest = {
+  hero: PlayerRequest
+  villain: PlayerRequest
+  community: (CardCode | null)[]
+  simulations: number
+  engine: 'cpu' | 'gpu'
+}
+
+export type EquityResult = {
+  heroWinPct: number
+  villainWinPct: number
+  tiePct: number
+  simulatedHands: number
+  runtimeMs: number
+  engine: string
+}
+
 export const SUITS: Suit[] = ['S', 'H', 'C', 'D']
 
 export const RANKS: Rank[] = [
@@ -68,4 +94,33 @@ export function getDisplayRank(rank: Rank): string {
 
 export function getBackImage(): string {
   return new URL('./assets/card-back.png', import.meta.url).href
+}
+
+export function normalizeCard(value: CardValue): CardCode | null {
+  if (value === null || value === 'BACK') return null
+  return value
+}
+
+export function buildExactPlayer(cards: CardValue[]): PlayerRequest {
+  return {
+    mode: 'exact',
+    cards: cards.map(normalizeCard),
+    range: [],
+  }
+}
+
+export function buildEquityRequest(
+  heroCards: CardValue[],
+  villainCards: CardValue[],
+  communityCards: CardValue[],
+  simulations = 1000000,
+  engine: 'cpu' | 'gpu' = 'cpu',
+): EquityRequest {
+  return {
+    hero: buildExactPlayer(heroCards),
+    villain: buildExactPlayer(villainCards),
+    community: communityCards.map(normalizeCard),
+    simulations,
+    engine,
+  }
 }

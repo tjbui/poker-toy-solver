@@ -1,11 +1,5 @@
-import { RANKS, SUITS } from './cards'
+import { RANKS, SUITS, getBackImage, getDisplayRank, getSuitClass, getSuitSymbol } from './cards'
 import type { CardCode, CardValue } from './cards'
-import {
-  getBackImage,
-  getDisplayRank,
-  getSuitClass,
-  getSuitSymbol,
-} from './cards'
 
 type CardPickerModalProps = {
   isOpen: boolean

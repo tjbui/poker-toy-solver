@@ -253,3 +253,167 @@
     padding: 1.5rem;
   }
 }
+
+.bottom-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.controls-row {
+  display: flex;
+  gap: 1rem;
+  align-items: end;
+  flex-wrap: wrap;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.control-label {
+  color: #edf6ef;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.control-input {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f3f7f4;
+  padding: 0.75rem 0.9rem;
+  font-size: 0.95rem;
+  min-width: 150px;
+}
+
+.control-input option {
+  color: black;
+}
+
+.simulate-button {
+  border: none;
+  border-radius: 12px;
+  padding: 0.95rem 1.4rem;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: #0b2418;
+  background: #f3f7f4;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.simulate-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
+}
+
+.simulate-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.results-panel {
+  min-height: 130px;
+  padding: 1.5rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.results-title {
+  margin: 0 0 1rem 0;
+  color: #edf6ef;
+  font-size: 1.3rem;
+}
+
+.results-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.result-card {
+  padding: 1rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.result-label {
+  font-size: 0.9rem;
+  color: rgba(237, 246, 239, 0.78);
+}
+
+.result-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f3f7f4;
+}
+
+.engine-pill {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.placeholder-text,
+.error-text {
+  margin: 0;
+  color: #edf6ef;
+}
+
+.error-text {
+  color: #ffb4b4;
+}
+
+.github-row {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.github-link-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.github-link-icon:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.github-logo {
+  width: 36px;
+  height: 36px;
+  filter: invert(1); /* makes it white for dark UI */
+}
+
+@media (max-width: 1000px) {
+  .bottom-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .results-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .github-row {
+    justify-content: center;
+  }
+}
