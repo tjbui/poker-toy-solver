@@ -1,4 +1,4 @@
-import type { EquityRequest, EquityResult } from './lib/cards'
+import type { EquityRequest, EquityResult } from '../lib/cards'
 
 const API_BASE_URL = 'http://localhost:8080'
 

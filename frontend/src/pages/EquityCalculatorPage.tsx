@@ -25,7 +25,6 @@ export default function EquityCalculatorPage() {
   const [activeTarget, setActiveTarget] = useState<CardSelectionTarget | null>(null)
   const [result, setResult] = useState<EquityResult | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
 
   const usedCards = useMemo(() => {
     return [...heroCards, ...villainCards, ...communityCards].filter(
@@ -35,14 +34,13 @@ export default function EquityCalculatorPage() {
 
   async function handleSimulate() {
     setIsLoading(true)
-    setError(null)
 
     try {
       const request = buildEquityRequest(
         heroCards,
         villainCards,
         communityCards,
-        1000000,
+        100000,
         'cpu',
       )
 
@@ -51,7 +49,6 @@ export default function EquityCalculatorPage() {
     } catch (err) {
       console.error(err)
       setResult(null)
-      setError('Could not run simulation. Make sure the required cards are selected.')
     } finally {
       setIsLoading(false)
     }
@@ -81,7 +78,6 @@ export default function EquityCalculatorPage() {
     }
 
     setActiveTarget(null)
-    setError(null)
   }
 
   return (
@@ -102,7 +98,7 @@ export default function EquityCalculatorPage() {
             />
           </a>
         </div>
-        
+
         <h1 className="title">Poker Equity Calculator</h1>
 
         <div className="table-layout">
