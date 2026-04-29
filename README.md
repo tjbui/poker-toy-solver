@@ -1,6 +1,6 @@
 # Poker Equity Calculator
 
-A full-stack poker equity calculator that allows users to select hole cards, community cards, and simulate outcomes using Monte Carlo methods.
+A full-stack poker equity calculator that allows users to select hole cards, community cards, and simulate outcomes using Monte Carlo.
 
 ## Features
 
@@ -13,8 +13,7 @@ A full-stack poker equity calculator that allows users to select hole cards, com
 ## Tech Stack
 
 **Frontend**
-- React + TypeScript (Vite)
-- CSS (custom styling)
+- React + TypeScript + CSS
 
 **Backend**
 - C++ HTTP server
