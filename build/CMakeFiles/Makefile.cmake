@@ -46,5 +46,6 @@ set(CMAKE_MAKEFILE_PRODUCTS
 set(CMAKE_DEPEND_INFO_FILES
   "engine/CMakeFiles/engine.dir/DependInfo.cmake"
   "engine/CMakeFiles/engine_test.dir/DependInfo.cmake"
+  "engine/CMakeFiles/evaluator_test.dir/DependInfo.cmake"
   "backend/CMakeFiles/poker_backend.dir/DependInfo.cmake"
   )

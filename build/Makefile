@@ -143,6 +143,19 @@ engine_test/fast:
 .PHONY : engine_test/fast
 
 #=============================================================================
+# Target rules for targets named evaluator_test
+
+# Build rule for target.
+evaluator_test: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 evaluator_test
+.PHONY : evaluator_test
+
+# fast build rule for target.
+evaluator_test/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/evaluator_test.dir/build.make engine/CMakeFiles/evaluator_test.dir/build
+.PHONY : evaluator_test/fast
+
+#=============================================================================
 # Target rules for targets named poker_backend
 
 # Build rule for target.
@@ -165,6 +178,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... engine"
 	@echo "... engine_test"
+	@echo "... evaluator_test"
 	@echo "... poker_backend"
 .PHONY : help
 

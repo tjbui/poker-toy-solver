@@ -17,3 +17,12 @@ target_link_libraries(engine_test
     PRIVATE
         engine
 )
+
+add_executable(evaluator_test
+    src/evaluator_test_main.cpp
+)
+
+target_link_libraries(evaluator_test
+    PRIVATE
+        engine
+)
