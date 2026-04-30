@@ -3,28 +3,33 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <array>
+
+enum class PlayerMode {
+    Exact,
+    Range
+};
 
 struct PlayerRequest {
-    std::string mode;
-    std::vector<std::optional<std::string>> cards;
+    PlayerMode mode;
+    std::array<std::optional<std::string>, 2> cards; 
     std::vector<std::string> range;
 };
 
 struct EquityRequest {
     PlayerRequest hero;
     PlayerRequest villain;
-    std::vector<std::optional<std::string>> community;
+    std::array<std::optional<std::string>, 5> community;
     int simulations;
-    std::string engine;
 };
 
 struct EquityResult {
     double heroWinPct;
     double villainWinPct;
     double tiePct;
-    int simulatedHands;
     double runtimeMs;
-    std::string engine;
+    int simulatedHands;
 };
 
-EquityResult run_equity_simulation_iterative(const EquityRequest& request);
+EquityResult get_equity_iterative(const EquityRequest& request);
+EquityResult get_equity_multithr(const EquityRequest& request);

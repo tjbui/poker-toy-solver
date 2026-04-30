@@ -130,43 +130,17 @@ engine/fast:
 .PHONY : engine/fast
 
 #=============================================================================
-# Target rules for targets named engine_test
+# Target rules for targets named test_evaluator
 
 # Build rule for target.
-engine_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine_test
-.PHONY : engine_test
+test_evaluator: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_evaluator
+.PHONY : test_evaluator
 
 # fast build rule for target.
-engine_test/fast:
-	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine_test.dir/build.make engine/CMakeFiles/engine_test.dir/build
-.PHONY : engine_test/fast
-
-#=============================================================================
-# Target rules for targets named evaluator_test
-
-# Build rule for target.
-evaluator_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 evaluator_test
-.PHONY : evaluator_test
-
-# fast build rule for target.
-evaluator_test/fast:
-	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/evaluator_test.dir/build.make engine/CMakeFiles/evaluator_test.dir/build
-.PHONY : evaluator_test/fast
-
-#=============================================================================
-# Target rules for targets named poker_backend
-
-# Build rule for target.
-poker_backend: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 poker_backend
-.PHONY : poker_backend
-
-# fast build rule for target.
-poker_backend/fast:
-	$(MAKE) $(MAKESILENT) -f backend/CMakeFiles/poker_backend.dir/build.make backend/CMakeFiles/poker_backend.dir/build
-.PHONY : poker_backend/fast
+test_evaluator/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_evaluator.dir/build.make engine/CMakeFiles/test_evaluator.dir/build
+.PHONY : test_evaluator/fast
 
 # Help Target
 help:
@@ -177,9 +151,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... engine"
-	@echo "... engine_test"
-	@echo "... evaluator_test"
-	@echo "... poker_backend"
+	@echo "... test_evaluator"
 .PHONY : help
 
 

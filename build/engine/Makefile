@@ -131,56 +131,18 @@ engine/fast:
 .PHONY : engine/fast
 
 # Convenience name for target.
-engine/CMakeFiles/engine_test.dir/rule:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/engine_test.dir/rule
-.PHONY : engine/CMakeFiles/engine_test.dir/rule
+engine/CMakeFiles/test_evaluator.dir/rule:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/test_evaluator.dir/rule
+.PHONY : engine/CMakeFiles/test_evaluator.dir/rule
 
 # Convenience name for target.
-engine_test: engine/CMakeFiles/engine_test.dir/rule
-.PHONY : engine_test
+test_evaluator: engine/CMakeFiles/test_evaluator.dir/rule
+.PHONY : test_evaluator
 
 # fast build rule for target.
-engine_test/fast:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine_test.dir/build.make engine/CMakeFiles/engine_test.dir/build
-.PHONY : engine_test/fast
-
-# Convenience name for target.
-engine/CMakeFiles/evaluator_test.dir/rule:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/evaluator_test.dir/rule
-.PHONY : engine/CMakeFiles/evaluator_test.dir/rule
-
-# Convenience name for target.
-evaluator_test: engine/CMakeFiles/evaluator_test.dir/rule
-.PHONY : evaluator_test
-
-# fast build rule for target.
-evaluator_test/fast:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/evaluator_test.dir/build.make engine/CMakeFiles/evaluator_test.dir/build
-.PHONY : evaluator_test/fast
-
-src/engine_iterative.o: src/engine_iterative.cpp.o
-.PHONY : src/engine_iterative.o
-
-# target to build an object file
-src/engine_iterative.cpp.o:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine.dir/build.make engine/CMakeFiles/engine.dir/src/engine_iterative.cpp.o
-.PHONY : src/engine_iterative.cpp.o
-
-src/engine_iterative.i: src/engine_iterative.cpp.i
-.PHONY : src/engine_iterative.i
-
-# target to preprocess a source file
-src/engine_iterative.cpp.i:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine.dir/build.make engine/CMakeFiles/engine.dir/src/engine_iterative.cpp.i
-.PHONY : src/engine_iterative.cpp.i
-
-src/engine_iterative.s: src/engine_iterative.cpp.s
-.PHONY : src/engine_iterative.s
-
-# target to generate assembly for a file
-src/engine_iterative.cpp.s:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine.dir/build.make engine/CMakeFiles/engine.dir/src/engine_iterative.cpp.s
-.PHONY : src/engine_iterative.cpp.s
+test_evaluator/fast:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_evaluator.dir/build.make engine/CMakeFiles/test_evaluator.dir/build
+.PHONY : test_evaluator/fast
 
 src/evaluator.o: src/evaluator.cpp.o
 .PHONY : src/evaluator.o
@@ -206,77 +168,29 @@ src/evaluator.cpp.s:
 	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine.dir/build.make engine/CMakeFiles/engine.dir/src/evaluator.cpp.s
 .PHONY : src/evaluator.cpp.s
 
-src/evaluator_test_main.o: src/evaluator_test_main.cpp.o
-.PHONY : src/evaluator_test_main.o
+src/test_evaluator.o: src/test_evaluator.cpp.o
+.PHONY : src/test_evaluator.o
 
 # target to build an object file
-src/evaluator_test_main.cpp.o:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/evaluator_test.dir/build.make engine/CMakeFiles/evaluator_test.dir/src/evaluator_test_main.cpp.o
-.PHONY : src/evaluator_test_main.cpp.o
+src/test_evaluator.cpp.o:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_evaluator.dir/build.make engine/CMakeFiles/test_evaluator.dir/src/test_evaluator.cpp.o
+.PHONY : src/test_evaluator.cpp.o
 
-src/evaluator_test_main.i: src/evaluator_test_main.cpp.i
-.PHONY : src/evaluator_test_main.i
-
-# target to preprocess a source file
-src/evaluator_test_main.cpp.i:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/evaluator_test.dir/build.make engine/CMakeFiles/evaluator_test.dir/src/evaluator_test_main.cpp.i
-.PHONY : src/evaluator_test_main.cpp.i
-
-src/evaluator_test_main.s: src/evaluator_test_main.cpp.s
-.PHONY : src/evaluator_test_main.s
-
-# target to generate assembly for a file
-src/evaluator_test_main.cpp.s:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/evaluator_test.dir/build.make engine/CMakeFiles/evaluator_test.dir/src/evaluator_test_main.cpp.s
-.PHONY : src/evaluator_test_main.cpp.s
-
-src/simulation.o: src/simulation.cpp.o
-.PHONY : src/simulation.o
-
-# target to build an object file
-src/simulation.cpp.o:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine.dir/build.make engine/CMakeFiles/engine.dir/src/simulation.cpp.o
-.PHONY : src/simulation.cpp.o
-
-src/simulation.i: src/simulation.cpp.i
-.PHONY : src/simulation.i
+src/test_evaluator.i: src/test_evaluator.cpp.i
+.PHONY : src/test_evaluator.i
 
 # target to preprocess a source file
-src/simulation.cpp.i:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine.dir/build.make engine/CMakeFiles/engine.dir/src/simulation.cpp.i
-.PHONY : src/simulation.cpp.i
+src/test_evaluator.cpp.i:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_evaluator.dir/build.make engine/CMakeFiles/test_evaluator.dir/src/test_evaluator.cpp.i
+.PHONY : src/test_evaluator.cpp.i
 
-src/simulation.s: src/simulation.cpp.s
-.PHONY : src/simulation.s
-
-# target to generate assembly for a file
-src/simulation.cpp.s:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine.dir/build.make engine/CMakeFiles/engine.dir/src/simulation.cpp.s
-.PHONY : src/simulation.cpp.s
-
-src/test_main.o: src/test_main.cpp.o
-.PHONY : src/test_main.o
-
-# target to build an object file
-src/test_main.cpp.o:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine_test.dir/build.make engine/CMakeFiles/engine_test.dir/src/test_main.cpp.o
-.PHONY : src/test_main.cpp.o
-
-src/test_main.i: src/test_main.cpp.i
-.PHONY : src/test_main.i
-
-# target to preprocess a source file
-src/test_main.cpp.i:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine_test.dir/build.make engine/CMakeFiles/engine_test.dir/src/test_main.cpp.i
-.PHONY : src/test_main.cpp.i
-
-src/test_main.s: src/test_main.cpp.s
-.PHONY : src/test_main.s
+src/test_evaluator.s: src/test_evaluator.cpp.s
+.PHONY : src/test_evaluator.s
 
 # target to generate assembly for a file
-src/test_main.cpp.s:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine_test.dir/build.make engine/CMakeFiles/engine_test.dir/src/test_main.cpp.s
-.PHONY : src/test_main.cpp.s
+src/test_evaluator.cpp.s:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_evaluator.dir/build.make engine/CMakeFiles/test_evaluator.dir/src/test_evaluator.cpp.s
+.PHONY : src/test_evaluator.cpp.s
 
 # Help Target
 help:
@@ -287,23 +201,13 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... engine"
-	@echo "... engine_test"
-	@echo "... evaluator_test"
-	@echo "... src/engine_iterative.o"
-	@echo "... src/engine_iterative.i"
-	@echo "... src/engine_iterative.s"
+	@echo "... test_evaluator"
 	@echo "... src/evaluator.o"
 	@echo "... src/evaluator.i"
 	@echo "... src/evaluator.s"
-	@echo "... src/evaluator_test_main.o"
-	@echo "... src/evaluator_test_main.i"
-	@echo "... src/evaluator_test_main.s"
-	@echo "... src/simulation.o"
-	@echo "... src/simulation.i"
-	@echo "... src/simulation.s"
-	@echo "... src/test_main.o"
-	@echo "... src/test_main.i"
-	@echo "... src/test_main.s"
+	@echo "... src/test_evaluator.o"
+	@echo "... src/test_evaluator.i"
+	@echo "... src/test_evaluator.s"
 .PHONY : help
 
 

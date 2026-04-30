@@ -1,7 +1,5 @@
-add_library(engine SHARED
+add_library(engine
     src/evaluator.cpp
-    src/simulation.cpp
-    src/engine_iterative.cpp
 )
 
 target_include_directories(engine
@@ -9,20 +7,10 @@ target_include_directories(engine
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-add_executable(engine_test
-    src/test_main.cpp
+add_executable(test_evaluator
+    src/test_evaluator.cpp
 )
 
-target_link_libraries(engine_test
-    PRIVATE
-        engine
-)
-
-add_executable(evaluator_test
-    src/evaluator_test_main.cpp
-)
-
-target_link_libraries(evaluator_test
-    PRIVATE
-        engine
+target_link_libraries(test_evaluator
+    PRIVATE engine
 )

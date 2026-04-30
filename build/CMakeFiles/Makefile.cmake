@@ -8,7 +8,6 @@ set(CMAKE_DEPENDS_GENERATOR "Unix Makefiles")
 set(CMAKE_MAKEFILE_DEPENDS
   "CMakeCache.txt"
   "/home/tjbui/projects/poker-equity/CMakeLists.txt"
-  "/home/tjbui/projects/poker-equity/backend/CMakeLists.txt"
   "CMakeFiles/3.28.3/CMakeCXXCompiler.cmake"
   "CMakeFiles/3.28.3/CMakeSystem.cmake"
   "/home/tjbui/projects/poker-equity/engine/CMakeLists.txt"
@@ -39,13 +38,10 @@ set(CMAKE_MAKEFILE_OUTPUTS
 set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "engine/CMakeFiles/CMakeDirectoryInformation.cmake"
-  "backend/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "engine/CMakeFiles/engine.dir/DependInfo.cmake"
-  "engine/CMakeFiles/engine_test.dir/DependInfo.cmake"
-  "engine/CMakeFiles/evaluator_test.dir/DependInfo.cmake"
-  "backend/CMakeFiles/poker_backend.dir/DependInfo.cmake"
+  "engine/CMakeFiles/test_evaluator.dir/DependInfo.cmake"
   )

@@ -1,10 +1,6 @@
 /home/tjbui/projects/poker-equity/build/CMakeFiles/edit_cache.dir
 /home/tjbui/projects/poker-equity/build/CMakeFiles/rebuild_cache.dir
 /home/tjbui/projects/poker-equity/build/engine/CMakeFiles/engine.dir
-/home/tjbui/projects/poker-equity/build/engine/CMakeFiles/engine_test.dir
-/home/tjbui/projects/poker-equity/build/engine/CMakeFiles/evaluator_test.dir
+/home/tjbui/projects/poker-equity/build/engine/CMakeFiles/test_evaluator.dir
 /home/tjbui/projects/poker-equity/build/engine/CMakeFiles/edit_cache.dir
 /home/tjbui/projects/poker-equity/build/engine/CMakeFiles/rebuild_cache.dir
-/home/tjbui/projects/poker-equity/build/backend/CMakeFiles/poker_backend.dir
-/home/tjbui/projects/poker-equity/build/backend/CMakeFiles/edit_cache.dir
-/home/tjbui/projects/poker-equity/build/backend/CMakeFiles/rebuild_cache.dir

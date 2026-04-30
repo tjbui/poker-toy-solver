@@ -52,7 +52,6 @@ int main() {
 
             request.community = parse_nullable_string_array(body.at("community"));
             request.simulations = body.at("simulations").get<int>();
-            request.engine = body.at("engine").get<std::string>();
 
             EquityResult result = run_equity_simulation_iterative(request);
 
@@ -61,8 +60,7 @@ int main() {
                 {"villainWinPct", result.villainWinPct},
                 {"tiePct", result.tiePct},
                 {"simulatedHands", result.simulatedHands},
-                {"runtimeMs", result.runtimeMs},
-                {"engine", result.engine}
+                {"runtimeMs", result.runtimeMs}
             };
 
             res.set_content(response.dump(), "application/json");
