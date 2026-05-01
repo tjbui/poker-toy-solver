@@ -7,18 +7,24 @@ target_include_directories(engine
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-add_executable(test_eval_basic
-    tests/test_eval_basic.cpp
-)
+enable_testing()
 
-target_link_libraries(test_eval_basic
-    PRIVATE engine
-)
+function(add_engine_test test_name)
+    add_executable(${test_name}
+        tests/${test_name}.cpp
+    )
 
-add_executable(test_eval_flush
-    tests/test_eval_flush.cpp
-)
+    target_link_libraries(${test_name}
+        PRIVATE engine
+    )
 
-target_link_libraries(test_eval_flush
-    PRIVATE engine
-)
+    add_test(
+        NAME ${test_name}
+        COMMAND ${test_name}
+    )
+endfunction()
+
+add_engine_test(test_eval_basic)
+add_engine_test(test_eval_flush)
+add_engine_test(test_eval_fullhouse)
+add_engine_test(test_eval_pairs)

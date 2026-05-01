@@ -45,4 +45,6 @@ set(CMAKE_DEPEND_INFO_FILES
   "engine/CMakeFiles/engine.dir/DependInfo.cmake"
   "engine/CMakeFiles/test_eval_basic.dir/DependInfo.cmake"
   "engine/CMakeFiles/test_eval_flush.dir/DependInfo.cmake"
+  "engine/CMakeFiles/test_eval_fullhouse.dir/DependInfo.cmake"
+  "engine/CMakeFiles/test_eval_pairs.dir/DependInfo.cmake"
   )

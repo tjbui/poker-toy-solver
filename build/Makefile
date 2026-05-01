@@ -155,6 +155,32 @@ test_eval_flush/fast:
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_flush.dir/build.make engine/CMakeFiles/test_eval_flush.dir/build
 .PHONY : test_eval_flush/fast
 
+#=============================================================================
+# Target rules for targets named test_eval_fullhouse
+
+# Build rule for target.
+test_eval_fullhouse: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_eval_fullhouse
+.PHONY : test_eval_fullhouse
+
+# fast build rule for target.
+test_eval_fullhouse/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_fullhouse.dir/build.make engine/CMakeFiles/test_eval_fullhouse.dir/build
+.PHONY : test_eval_fullhouse/fast
+
+#=============================================================================
+# Target rules for targets named test_eval_pairs
+
+# Build rule for target.
+test_eval_pairs: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_eval_pairs
+.PHONY : test_eval_pairs
+
+# fast build rule for target.
+test_eval_pairs/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/build
+.PHONY : test_eval_pairs/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -166,6 +192,8 @@ help:
 	@echo "... engine"
 	@echo "... test_eval_basic"
 	@echo "... test_eval_flush"
+	@echo "... test_eval_fullhouse"
+	@echo "... test_eval_pairs"
 .PHONY : help
 
 

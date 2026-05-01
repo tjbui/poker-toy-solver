@@ -45,6 +45,19 @@ int main() {
         TIE
     );
 
+    /* Hero:      AH KH
+     * Villain:   8S 9D
+     * Community: QH 5H 6D 7C 2H
+     * Hero wins with Ace-high flush vs Villain 5-9 straight
+     */
+    print_test(
+        "Flush beats straight",
+        12, 11,
+        45, 20,
+        {10, 3, 17, 31, 0},
+        HERO_WIN
+    );
+
     std::cout << "========== END test_eval_flush.cpp ==========\n";
     return 0;
 }

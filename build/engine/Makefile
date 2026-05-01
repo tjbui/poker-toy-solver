@@ -158,6 +158,34 @@ test_eval_flush/fast:
 	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_flush.dir/build.make engine/CMakeFiles/test_eval_flush.dir/build
 .PHONY : test_eval_flush/fast
 
+# Convenience name for target.
+engine/CMakeFiles/test_eval_fullhouse.dir/rule:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/test_eval_fullhouse.dir/rule
+.PHONY : engine/CMakeFiles/test_eval_fullhouse.dir/rule
+
+# Convenience name for target.
+test_eval_fullhouse: engine/CMakeFiles/test_eval_fullhouse.dir/rule
+.PHONY : test_eval_fullhouse
+
+# fast build rule for target.
+test_eval_fullhouse/fast:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_fullhouse.dir/build.make engine/CMakeFiles/test_eval_fullhouse.dir/build
+.PHONY : test_eval_fullhouse/fast
+
+# Convenience name for target.
+engine/CMakeFiles/test_eval_pairs.dir/rule:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/test_eval_pairs.dir/rule
+.PHONY : engine/CMakeFiles/test_eval_pairs.dir/rule
+
+# Convenience name for target.
+test_eval_pairs: engine/CMakeFiles/test_eval_pairs.dir/rule
+.PHONY : test_eval_pairs
+
+# fast build rule for target.
+test_eval_pairs/fast:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/build
+.PHONY : test_eval_pairs/fast
+
 src/evaluator.o: src/evaluator.cpp.o
 .PHONY : src/evaluator.o
 
@@ -230,6 +258,54 @@ tests/test_eval_flush.cpp.s:
 	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_flush.dir/build.make engine/CMakeFiles/test_eval_flush.dir/tests/test_eval_flush.cpp.s
 .PHONY : tests/test_eval_flush.cpp.s
 
+tests/test_eval_fullhouse.o: tests/test_eval_fullhouse.cpp.o
+.PHONY : tests/test_eval_fullhouse.o
+
+# target to build an object file
+tests/test_eval_fullhouse.cpp.o:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_fullhouse.dir/build.make engine/CMakeFiles/test_eval_fullhouse.dir/tests/test_eval_fullhouse.cpp.o
+.PHONY : tests/test_eval_fullhouse.cpp.o
+
+tests/test_eval_fullhouse.i: tests/test_eval_fullhouse.cpp.i
+.PHONY : tests/test_eval_fullhouse.i
+
+# target to preprocess a source file
+tests/test_eval_fullhouse.cpp.i:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_fullhouse.dir/build.make engine/CMakeFiles/test_eval_fullhouse.dir/tests/test_eval_fullhouse.cpp.i
+.PHONY : tests/test_eval_fullhouse.cpp.i
+
+tests/test_eval_fullhouse.s: tests/test_eval_fullhouse.cpp.s
+.PHONY : tests/test_eval_fullhouse.s
+
+# target to generate assembly for a file
+tests/test_eval_fullhouse.cpp.s:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_fullhouse.dir/build.make engine/CMakeFiles/test_eval_fullhouse.dir/tests/test_eval_fullhouse.cpp.s
+.PHONY : tests/test_eval_fullhouse.cpp.s
+
+tests/test_eval_pairs.o: tests/test_eval_pairs.cpp.o
+.PHONY : tests/test_eval_pairs.o
+
+# target to build an object file
+tests/test_eval_pairs.cpp.o:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/tests/test_eval_pairs.cpp.o
+.PHONY : tests/test_eval_pairs.cpp.o
+
+tests/test_eval_pairs.i: tests/test_eval_pairs.cpp.i
+.PHONY : tests/test_eval_pairs.i
+
+# target to preprocess a source file
+tests/test_eval_pairs.cpp.i:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/tests/test_eval_pairs.cpp.i
+.PHONY : tests/test_eval_pairs.cpp.i
+
+tests/test_eval_pairs.s: tests/test_eval_pairs.cpp.s
+.PHONY : tests/test_eval_pairs.s
+
+# target to generate assembly for a file
+tests/test_eval_pairs.cpp.s:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/tests/test_eval_pairs.cpp.s
+.PHONY : tests/test_eval_pairs.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -241,6 +317,8 @@ help:
 	@echo "... engine"
 	@echo "... test_eval_basic"
 	@echo "... test_eval_flush"
+	@echo "... test_eval_fullhouse"
+	@echo "... test_eval_pairs"
 	@echo "... src/evaluator.o"
 	@echo "... src/evaluator.i"
 	@echo "... src/evaluator.s"
@@ -250,6 +328,12 @@ help:
 	@echo "... tests/test_eval_flush.o"
 	@echo "... tests/test_eval_flush.i"
 	@echo "... tests/test_eval_flush.s"
+	@echo "... tests/test_eval_fullhouse.o"
+	@echo "... tests/test_eval_fullhouse.i"
+	@echo "... tests/test_eval_fullhouse.s"
+	@echo "... tests/test_eval_pairs.o"
+	@echo "... tests/test_eval_pairs.i"
+	@echo "... tests/test_eval_pairs.s"
 .PHONY : help
 
 

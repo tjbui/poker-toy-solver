@@ -81,6 +81,8 @@ clean: engine/clean
 engine/all: engine/CMakeFiles/engine.dir/all
 engine/all: engine/CMakeFiles/test_eval_basic.dir/all
 engine/all: engine/CMakeFiles/test_eval_flush.dir/all
+engine/all: engine/CMakeFiles/test_eval_fullhouse.dir/all
+engine/all: engine/CMakeFiles/test_eval_pairs.dir/all
 .PHONY : engine/all
 
 # Recursive "preinstall" directory target.
@@ -91,6 +93,8 @@ engine/preinstall:
 engine/clean: engine/CMakeFiles/engine.dir/clean
 engine/clean: engine/CMakeFiles/test_eval_basic.dir/clean
 engine/clean: engine/CMakeFiles/test_eval_flush.dir/clean
+engine/clean: engine/CMakeFiles/test_eval_fullhouse.dir/clean
+engine/clean: engine/CMakeFiles/test_eval_pairs.dir/clean
 .PHONY : engine/clean
 
 #=============================================================================
@@ -170,6 +174,58 @@ test_eval_flush: engine/CMakeFiles/test_eval_flush.dir/rule
 engine/CMakeFiles/test_eval_flush.dir/clean:
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_flush.dir/build.make engine/CMakeFiles/test_eval_flush.dir/clean
 .PHONY : engine/CMakeFiles/test_eval_flush.dir/clean
+
+#=============================================================================
+# Target rules for target engine/CMakeFiles/test_eval_fullhouse.dir
+
+# All Build rule for target.
+engine/CMakeFiles/test_eval_fullhouse.dir/all: engine/CMakeFiles/engine.dir/all
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_fullhouse.dir/build.make engine/CMakeFiles/test_eval_fullhouse.dir/depend
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_fullhouse.dir/build.make engine/CMakeFiles/test_eval_fullhouse.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=7,8 "Built target test_eval_fullhouse"
+.PHONY : engine/CMakeFiles/test_eval_fullhouse.dir/all
+
+# Build rule for subdir invocation for target.
+engine/CMakeFiles/test_eval_fullhouse.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 4
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/test_eval_fullhouse.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 0
+.PHONY : engine/CMakeFiles/test_eval_fullhouse.dir/rule
+
+# Convenience name for target.
+test_eval_fullhouse: engine/CMakeFiles/test_eval_fullhouse.dir/rule
+.PHONY : test_eval_fullhouse
+
+# clean rule for target.
+engine/CMakeFiles/test_eval_fullhouse.dir/clean:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_fullhouse.dir/build.make engine/CMakeFiles/test_eval_fullhouse.dir/clean
+.PHONY : engine/CMakeFiles/test_eval_fullhouse.dir/clean
+
+#=============================================================================
+# Target rules for target engine/CMakeFiles/test_eval_pairs.dir
+
+# All Build rule for target.
+engine/CMakeFiles/test_eval_pairs.dir/all: engine/CMakeFiles/engine.dir/all
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/depend
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=9,10 "Built target test_eval_pairs"
+.PHONY : engine/CMakeFiles/test_eval_pairs.dir/all
+
+# Build rule for subdir invocation for target.
+engine/CMakeFiles/test_eval_pairs.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 4
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/test_eval_pairs.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 0
+.PHONY : engine/CMakeFiles/test_eval_pairs.dir/rule
+
+# Convenience name for target.
+test_eval_pairs: engine/CMakeFiles/test_eval_pairs.dir/rule
+.PHONY : test_eval_pairs
+
+# clean rule for target.
+engine/CMakeFiles/test_eval_pairs.dir/clean:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/clean
+.PHONY : engine/CMakeFiles/test_eval_pairs.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
