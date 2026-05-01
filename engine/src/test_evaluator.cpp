@@ -1,3 +1,5 @@
+/* test_evaluator.cpp - test module for evaluator */
+
 #include "evaluator.h"
 #include <iostream>
 

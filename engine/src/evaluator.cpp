@@ -5,18 +5,6 @@
 #include <algorithm>
 #include <vector>
 
-uint64_t evaluate_7_cards(std::array<Card, 7>& cards);
-int find_straight_high(const std::array<int, 13>& rank_counts);
-uint64_t try_straight_flush(std::array<std::vector<uint8_t>, 4>& ranks_by_suit);
-uint64_t try_quads(std::array<uint8_t, 13>& rank_counts);
-uint64_t try_full_house(std::array<uint8_t, 13>& rank_counts);
-uint64_t try_flush(std::array<std::vector<uint8_t>, 4>& ranks_by_suit);
-uint64_t try_straight(std::array<uint8_t, 13>& rank_counts);
-uint64_t try_three_of_a_kind(std::array<uint8_t, 13>& rank_counts);
-uint64_t try_two_pair(std::array<uint8_t, 13>& rank_counts);
-uint64_t try_one_pair(std::array<uint8_t, 13>& rank_counts);
-uint64_t make_high_card(std::array<uint8_t, 13>& rank_counts);
-
 /*
  * Evaluates Hero_Win, Villain_Win, or Tie given villain, hero and community cards. Returns 
  * enum class Evaluator_result. 
