@@ -181,6 +181,19 @@ test_eval_pairs/fast:
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/build
 .PHONY : test_eval_pairs/fast
 
+#=============================================================================
+# Target rules for targets named test_simulator
+
+# Build rule for target.
+test_simulator: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_simulator
+.PHONY : test_simulator
+
+# fast build rule for target.
+test_simulator/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_simulator.dir/build.make engine/CMakeFiles/test_simulator.dir/build
+.PHONY : test_simulator/fast
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -194,6 +207,7 @@ help:
 	@echo "... test_eval_flush"
 	@echo "... test_eval_fullhouse"
 	@echo "... test_eval_pairs"
+	@echo "... test_simulator"
 .PHONY : help
 
 

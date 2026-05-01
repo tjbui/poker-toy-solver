@@ -83,6 +83,7 @@ engine/all: engine/CMakeFiles/test_eval_basic.dir/all
 engine/all: engine/CMakeFiles/test_eval_flush.dir/all
 engine/all: engine/CMakeFiles/test_eval_fullhouse.dir/all
 engine/all: engine/CMakeFiles/test_eval_pairs.dir/all
+engine/all: engine/CMakeFiles/test_simulator.dir/all
 .PHONY : engine/all
 
 # Recursive "preinstall" directory target.
@@ -95,6 +96,7 @@ engine/clean: engine/CMakeFiles/test_eval_basic.dir/clean
 engine/clean: engine/CMakeFiles/test_eval_flush.dir/clean
 engine/clean: engine/CMakeFiles/test_eval_fullhouse.dir/clean
 engine/clean: engine/CMakeFiles/test_eval_pairs.dir/clean
+engine/clean: engine/CMakeFiles/test_simulator.dir/clean
 .PHONY : engine/clean
 
 #=============================================================================
@@ -104,12 +106,12 @@ engine/clean: engine/CMakeFiles/test_eval_pairs.dir/clean
 engine/CMakeFiles/engine.dir/all:
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine.dir/build.make engine/CMakeFiles/engine.dir/depend
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine.dir/build.make engine/CMakeFiles/engine.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=1,2 "Built target engine"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=1,2,3,4 "Built target engine"
 .PHONY : engine/CMakeFiles/engine.dir/all
 
 # Build rule for subdir invocation for target.
 engine/CMakeFiles/engine.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/engine.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 0
 .PHONY : engine/CMakeFiles/engine.dir/rule
@@ -130,12 +132,12 @@ engine/CMakeFiles/engine.dir/clean:
 engine/CMakeFiles/test_eval_basic.dir/all: engine/CMakeFiles/engine.dir/all
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_basic.dir/build.make engine/CMakeFiles/test_eval_basic.dir/depend
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_basic.dir/build.make engine/CMakeFiles/test_eval_basic.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=3,4 "Built target test_eval_basic"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=5,6 "Built target test_eval_basic"
 .PHONY : engine/CMakeFiles/test_eval_basic.dir/all
 
 # Build rule for subdir invocation for target.
 engine/CMakeFiles/test_eval_basic.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 6
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/test_eval_basic.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 0
 .PHONY : engine/CMakeFiles/test_eval_basic.dir/rule
@@ -156,12 +158,12 @@ engine/CMakeFiles/test_eval_basic.dir/clean:
 engine/CMakeFiles/test_eval_flush.dir/all: engine/CMakeFiles/engine.dir/all
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_flush.dir/build.make engine/CMakeFiles/test_eval_flush.dir/depend
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_flush.dir/build.make engine/CMakeFiles/test_eval_flush.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=5,6 "Built target test_eval_flush"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=7,8 "Built target test_eval_flush"
 .PHONY : engine/CMakeFiles/test_eval_flush.dir/all
 
 # Build rule for subdir invocation for target.
 engine/CMakeFiles/test_eval_flush.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 6
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/test_eval_flush.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 0
 .PHONY : engine/CMakeFiles/test_eval_flush.dir/rule
@@ -182,12 +184,12 @@ engine/CMakeFiles/test_eval_flush.dir/clean:
 engine/CMakeFiles/test_eval_fullhouse.dir/all: engine/CMakeFiles/engine.dir/all
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_fullhouse.dir/build.make engine/CMakeFiles/test_eval_fullhouse.dir/depend
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_fullhouse.dir/build.make engine/CMakeFiles/test_eval_fullhouse.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=7,8 "Built target test_eval_fullhouse"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=9,10 "Built target test_eval_fullhouse"
 .PHONY : engine/CMakeFiles/test_eval_fullhouse.dir/all
 
 # Build rule for subdir invocation for target.
 engine/CMakeFiles/test_eval_fullhouse.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 6
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/test_eval_fullhouse.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 0
 .PHONY : engine/CMakeFiles/test_eval_fullhouse.dir/rule
@@ -208,12 +210,12 @@ engine/CMakeFiles/test_eval_fullhouse.dir/clean:
 engine/CMakeFiles/test_eval_pairs.dir/all: engine/CMakeFiles/engine.dir/all
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/depend
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=9,10 "Built target test_eval_pairs"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=11,12 "Built target test_eval_pairs"
 .PHONY : engine/CMakeFiles/test_eval_pairs.dir/all
 
 # Build rule for subdir invocation for target.
 engine/CMakeFiles/test_eval_pairs.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 4
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 6
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/test_eval_pairs.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 0
 .PHONY : engine/CMakeFiles/test_eval_pairs.dir/rule
@@ -226,6 +228,32 @@ test_eval_pairs: engine/CMakeFiles/test_eval_pairs.dir/rule
 engine/CMakeFiles/test_eval_pairs.dir/clean:
 	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/clean
 .PHONY : engine/CMakeFiles/test_eval_pairs.dir/clean
+
+#=============================================================================
+# Target rules for target engine/CMakeFiles/test_simulator.dir
+
+# All Build rule for target.
+engine/CMakeFiles/test_simulator.dir/all: engine/CMakeFiles/engine.dir/all
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_simulator.dir/build.make engine/CMakeFiles/test_simulator.dir/depend
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_simulator.dir/build.make engine/CMakeFiles/test_simulator.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=13,14 "Built target test_simulator"
+.PHONY : engine/CMakeFiles/test_simulator.dir/all
+
+# Build rule for subdir invocation for target.
+engine/CMakeFiles/test_simulator.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 6
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/test_simulator.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/tjbui/projects/poker-equity/build/CMakeFiles 0
+.PHONY : engine/CMakeFiles/test_simulator.dir/rule
+
+# Convenience name for target.
+test_simulator: engine/CMakeFiles/test_simulator.dir/rule
+.PHONY : test_simulator
+
+# clean rule for target.
+engine/CMakeFiles/test_simulator.dir/clean:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_simulator.dir/build.make engine/CMakeFiles/test_simulator.dir/clean
+.PHONY : engine/CMakeFiles/test_simulator.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
