@@ -182,17 +182,30 @@ test_eval_pairs/fast:
 .PHONY : test_eval_pairs/fast
 
 #=============================================================================
-# Target rules for targets named test_simulator
+# Target rules for targets named test_sim_iterative
 
 # Build rule for target.
-test_simulator: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_simulator
-.PHONY : test_simulator
+test_sim_iterative: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_sim_iterative
+.PHONY : test_sim_iterative
 
 # fast build rule for target.
-test_simulator/fast:
-	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_simulator.dir/build.make engine/CMakeFiles/test_simulator.dir/build
-.PHONY : test_simulator/fast
+test_sim_iterative/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_sim_iterative.dir/build.make engine/CMakeFiles/test_sim_iterative.dir/build
+.PHONY : test_sim_iterative/fast
+
+#=============================================================================
+# Target rules for targets named poker_backend
+
+# Build rule for target.
+poker_backend: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 poker_backend
+.PHONY : poker_backend
+
+# fast build rule for target.
+poker_backend/fast:
+	$(MAKE) $(MAKESILENT) -f backend/CMakeFiles/poker_backend.dir/build.make backend/CMakeFiles/poker_backend.dir/build
+.PHONY : poker_backend/fast
 
 # Help Target
 help:
@@ -203,11 +216,12 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... engine"
+	@echo "... poker_backend"
 	@echo "... test_eval_basic"
 	@echo "... test_eval_flush"
 	@echo "... test_eval_fullhouse"
 	@echo "... test_eval_pairs"
-	@echo "... test_simulator"
+	@echo "... test_sim_iterative"
 .PHONY : help
 
 

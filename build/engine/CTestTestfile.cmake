@@ -12,5 +12,5 @@ add_test(test_eval_fullhouse "/home/tjbui/projects/poker-equity/build/engine/tes
 set_tests_properties(test_eval_fullhouse PROPERTIES  _BACKTRACE_TRIPLES "/home/tjbui/projects/poker-equity/engine/CMakeLists.txt;23;add_test;/home/tjbui/projects/poker-equity/engine/CMakeLists.txt;31;add_engine_test;/home/tjbui/projects/poker-equity/engine/CMakeLists.txt;0;")
 add_test(test_eval_pairs "/home/tjbui/projects/poker-equity/build/engine/test_eval_pairs")
 set_tests_properties(test_eval_pairs PROPERTIES  _BACKTRACE_TRIPLES "/home/tjbui/projects/poker-equity/engine/CMakeLists.txt;23;add_test;/home/tjbui/projects/poker-equity/engine/CMakeLists.txt;32;add_engine_test;/home/tjbui/projects/poker-equity/engine/CMakeLists.txt;0;")
-add_test(test_simulator "/home/tjbui/projects/poker-equity/build/engine/test_simulator")
-set_tests_properties(test_simulator PROPERTIES  _BACKTRACE_TRIPLES "/home/tjbui/projects/poker-equity/engine/CMakeLists.txt;23;add_test;/home/tjbui/projects/poker-equity/engine/CMakeLists.txt;33;add_engine_test;/home/tjbui/projects/poker-equity/engine/CMakeLists.txt;0;")
+add_test(test_sim_iterative "/home/tjbui/projects/poker-equity/build/engine/test_sim_iterative")
+set_tests_properties(test_sim_iterative PROPERTIES  _BACKTRACE_TRIPLES "/home/tjbui/projects/poker-equity/engine/CMakeLists.txt;23;add_test;/home/tjbui/projects/poker-equity/engine/CMakeLists.txt;33;add_engine_test;/home/tjbui/projects/poker-equity/engine/CMakeLists.txt;0;")

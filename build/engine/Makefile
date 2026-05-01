@@ -187,18 +187,18 @@ test_eval_pairs/fast:
 .PHONY : test_eval_pairs/fast
 
 # Convenience name for target.
-engine/CMakeFiles/test_simulator.dir/rule:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/test_simulator.dir/rule
-.PHONY : engine/CMakeFiles/test_simulator.dir/rule
+engine/CMakeFiles/test_sim_iterative.dir/rule:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine/CMakeFiles/test_sim_iterative.dir/rule
+.PHONY : engine/CMakeFiles/test_sim_iterative.dir/rule
 
 # Convenience name for target.
-test_simulator: engine/CMakeFiles/test_simulator.dir/rule
-.PHONY : test_simulator
+test_sim_iterative: engine/CMakeFiles/test_sim_iterative.dir/rule
+.PHONY : test_sim_iterative
 
 # fast build rule for target.
-test_simulator/fast:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_simulator.dir/build.make engine/CMakeFiles/test_simulator.dir/build
-.PHONY : test_simulator/fast
+test_sim_iterative/fast:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_sim_iterative.dir/build.make engine/CMakeFiles/test_sim_iterative.dir/build
+.PHONY : test_sim_iterative/fast
 
 src/engine_cpu_iterative.o: src/engine_cpu_iterative.cpp.o
 .PHONY : src/engine_cpu_iterative.o
@@ -368,29 +368,29 @@ tests/test_eval_pairs.cpp.s:
 	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/tests/test_eval_pairs.cpp.s
 .PHONY : tests/test_eval_pairs.cpp.s
 
-tests/test_simulator.o: tests/test_simulator.cpp.o
-.PHONY : tests/test_simulator.o
+tests/test_sim_iterative.o: tests/test_sim_iterative.cpp.o
+.PHONY : tests/test_sim_iterative.o
 
 # target to build an object file
-tests/test_simulator.cpp.o:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_simulator.dir/build.make engine/CMakeFiles/test_simulator.dir/tests/test_simulator.cpp.o
-.PHONY : tests/test_simulator.cpp.o
+tests/test_sim_iterative.cpp.o:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_sim_iterative.dir/build.make engine/CMakeFiles/test_sim_iterative.dir/tests/test_sim_iterative.cpp.o
+.PHONY : tests/test_sim_iterative.cpp.o
 
-tests/test_simulator.i: tests/test_simulator.cpp.i
-.PHONY : tests/test_simulator.i
+tests/test_sim_iterative.i: tests/test_sim_iterative.cpp.i
+.PHONY : tests/test_sim_iterative.i
 
 # target to preprocess a source file
-tests/test_simulator.cpp.i:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_simulator.dir/build.make engine/CMakeFiles/test_simulator.dir/tests/test_simulator.cpp.i
-.PHONY : tests/test_simulator.cpp.i
+tests/test_sim_iterative.cpp.i:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_sim_iterative.dir/build.make engine/CMakeFiles/test_sim_iterative.dir/tests/test_sim_iterative.cpp.i
+.PHONY : tests/test_sim_iterative.cpp.i
 
-tests/test_simulator.s: tests/test_simulator.cpp.s
-.PHONY : tests/test_simulator.s
+tests/test_sim_iterative.s: tests/test_sim_iterative.cpp.s
+.PHONY : tests/test_sim_iterative.s
 
 # target to generate assembly for a file
-tests/test_simulator.cpp.s:
-	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_simulator.dir/build.make engine/CMakeFiles/test_simulator.dir/tests/test_simulator.cpp.s
-.PHONY : tests/test_simulator.cpp.s
+tests/test_sim_iterative.cpp.s:
+	cd /home/tjbui/projects/poker-equity/build && $(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_sim_iterative.dir/build.make engine/CMakeFiles/test_sim_iterative.dir/tests/test_sim_iterative.cpp.s
+.PHONY : tests/test_sim_iterative.cpp.s
 
 # Help Target
 help:
@@ -405,7 +405,7 @@ help:
 	@echo "... test_eval_flush"
 	@echo "... test_eval_fullhouse"
 	@echo "... test_eval_pairs"
-	@echo "... test_simulator"
+	@echo "... test_sim_iterative"
 	@echo "... src/engine_cpu_iterative.o"
 	@echo "... src/engine_cpu_iterative.i"
 	@echo "... src/engine_cpu_iterative.s"
@@ -427,9 +427,9 @@ help:
 	@echo "... tests/test_eval_pairs.o"
 	@echo "... tests/test_eval_pairs.i"
 	@echo "... tests/test_eval_pairs.s"
-	@echo "... tests/test_simulator.o"
-	@echo "... tests/test_simulator.i"
-	@echo "... tests/test_simulator.s"
+	@echo "... tests/test_sim_iterative.o"
+	@echo "... tests/test_sim_iterative.i"
+	@echo "... tests/test_sim_iterative.s"
 .PHONY : help
 
 

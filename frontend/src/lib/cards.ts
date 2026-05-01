@@ -15,7 +15,7 @@ export type Rank =
   | '3'
   | '2'
 
-export type CardCode = `${Suit}-${Rank}`
+export type CardCode = `${Rank}${Suit}`
 export type CardValue = CardCode | 'BACK' | null
 
 export type CardSelectionTarget = {
@@ -46,7 +46,7 @@ export type EquityResult = {
   tiePct: number
   simulatedHands: number
   runtimeMs: number
-  engine: string
+  engine?: string
 }
 
 export const SUITS: Suit[] = ['S', 'H', 'C', 'D']
@@ -68,7 +68,7 @@ export const RANKS: Rank[] = [
 ]
 
 export const ALL_CARDS: CardCode[] = SUITS.flatMap((suit) =>
-  RANKS.map((rank) => `${suit}-${rank}` as CardCode),
+  RANKS.map((rank) => `${rank}${suit}` as CardCode),
 )
 
 export function getSuitSymbol(suit: Suit): string {
@@ -94,6 +94,14 @@ export function getDisplayRank(rank: Rank): string {
 
 export function getBackImage(): string {
   return new URL('../assets/card-back.png', import.meta.url).href
+}
+
+export function getCardRank(card: CardCode): Rank {
+  return card[0] as Rank
+}
+
+export function getCardSuit(card: CardCode): Suit {
+  return card[1] as Suit
 }
 
 export function normalizeCard(value: CardValue): CardCode | null {

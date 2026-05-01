@@ -1,5 +1,9 @@
+/* main.cpp - http server to process requests from frontend and call engine */
+
+#include <array>
 #include <iostream>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
@@ -9,21 +13,52 @@
 
 using json = nlohmann::json;
 
-static std::vector<std::optional<std::string>> parse_nullable_string_array(const json& arr) {
-    std::vector<std::optional<std::string>> result;
-    result.reserve(arr.size());
+/*
+ * Parse string into PlayerMode enum
+ */
+PlayerMode parse_player_mode(const std::string& mode) {
+    if (mode == "exact") {
+        return PlayerMode::Exact;
+    }
 
-    for (const auto& item : arr) {
-        if (item.is_null()) {
-            result.push_back(std::nullopt);
+    if (mode == "range") {
+        return PlayerMode::Range;
+    }
+
+    throw std::invalid_argument("Invalid player mode: " + mode);
+} /* parse_player_mode() */
+
+/*
+ * Template to work for all arrays of any fixed size N
+ */
+template <std::size_t N>
+std::array<std::optional<std::string>, N> parse_nullable_string_array(const json& arr) {
+    if (!arr.is_array()) {
+        throw std::invalid_argument("Expected array");
+    }
+
+    if (arr.size() != N) {
+        throw std::invalid_argument(
+            "Expected array of size " + std::to_string(N)
+        );
+    }
+
+    std::array<std::optional<std::string>, N> result{};
+
+    for (std::size_t i = 0; i < N; i++) {
+        if (arr.at(i).is_null()) {
+            result[i] = std::nullopt;
         } else {
-            result.push_back(item.get<std::string>());
+            result[i] = arr.at(i).get<std::string>();
         }
     }
 
     return result;
-}
+} /* parse_nullable_string_array() */
 
+/*
+ * Start HTTP Server and define POST request to calculate equity with iterative / multithreaded simulator
+ */
 int main() {
     httplib::Server server;
 
@@ -42,18 +77,35 @@ int main() {
 
             EquityRequest request{};
 
-            request.hero.mode = body.at("hero").at("mode").get<std::string>();
-            request.hero.cards = parse_nullable_string_array(body.at("hero").at("cards"));
-            request.hero.range = body.at("hero").at("range").get<std::vector<std::string>>();
+            request.hero.mode = parse_player_mode(
+                body.at("hero").at("mode").get<std::string>()
+            );
 
-            request.villain.mode = body.at("villain").at("mode").get<std::string>();
-            request.villain.cards = parse_nullable_string_array(body.at("villain").at("cards"));
-            request.villain.range = body.at("villain").at("range").get<std::vector<std::string>>();
+            request.hero.cards = parse_nullable_string_array<2>(
+                body.at("hero").at("cards")
+            );
 
-            request.community = parse_nullable_string_array(body.at("community"));
+            request.hero.range = body.at("hero").at("range")
+                .get<std::vector<std::string>>();
+
+            request.villain.mode = parse_player_mode(
+                body.at("villain").at("mode").get<std::string>()
+            );
+
+            request.villain.cards = parse_nullable_string_array<2>(
+                body.at("villain").at("cards")
+            );
+
+            request.villain.range = body.at("villain").at("range")
+                .get<std::vector<std::string>>();
+
+            request.community = parse_nullable_string_array<5>(
+                body.at("community")
+            );
+
             request.simulations = body.at("simulations").get<int>();
 
-            EquityResult result = run_equity_simulation_iterative(request);
+            EquityResult result = get_equity_iterative(request);
 
             json response = {
                 {"heroWinPct", result.heroWinPct},
@@ -70,6 +122,7 @@ int main() {
                 {"error", "Invalid request"},
                 {"message", e.what()}
             };
+
             res.set_content(error.dump(), "application/json");
             res.status = 400;
         }
@@ -77,4 +130,6 @@ int main() {
 
     std::cout << "Server running at http://localhost:8080\n";
     server.listen("0.0.0.0", 8080);
-}
+
+    return 0;
+} /* main() */
