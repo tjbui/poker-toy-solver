@@ -130,17 +130,30 @@ engine/fast:
 .PHONY : engine/fast
 
 #=============================================================================
-# Target rules for targets named test_evaluator
+# Target rules for targets named test_eval_basic
 
 # Build rule for target.
-test_evaluator: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_evaluator
-.PHONY : test_evaluator
+test_eval_basic: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_eval_basic
+.PHONY : test_eval_basic
 
 # fast build rule for target.
-test_evaluator/fast:
-	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_evaluator.dir/build.make engine/CMakeFiles/test_evaluator.dir/build
-.PHONY : test_evaluator/fast
+test_eval_basic/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_basic.dir/build.make engine/CMakeFiles/test_eval_basic.dir/build
+.PHONY : test_eval_basic/fast
+
+#=============================================================================
+# Target rules for targets named test_eval_flush
+
+# Build rule for target.
+test_eval_flush: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_eval_flush
+.PHONY : test_eval_flush
+
+# fast build rule for target.
+test_eval_flush/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_flush.dir/build.make engine/CMakeFiles/test_eval_flush.dir/build
+.PHONY : test_eval_flush/fast
 
 # Help Target
 help:
@@ -151,7 +164,8 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... engine"
-	@echo "... test_evaluator"
+	@echo "... test_eval_basic"
+	@echo "... test_eval_flush"
 .PHONY : help
 
 

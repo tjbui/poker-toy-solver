@@ -7,10 +7,18 @@ target_include_directories(engine
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-add_executable(test_evaluator
-    src/test_evaluator.cpp
+add_executable(test_eval_basic
+    tests/test_eval_basic.cpp
 )
 
-target_link_libraries(test_evaluator
+target_link_libraries(test_eval_basic
+    PRIVATE engine
+)
+
+add_executable(test_eval_flush
+    tests/test_eval_flush.cpp
+)
+
+target_link_libraries(test_eval_flush
     PRIVATE engine
 )

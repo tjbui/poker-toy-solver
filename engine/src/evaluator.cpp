@@ -289,7 +289,7 @@ uint64_t make_high_card(std::array<uint8_t, 13>& rank_counts) {
  * Returns the highest rank of the straight
  */
 int find_straight_high(const std::array<int, 13>& rank_counts) {
-    // normal straights: A-high down to 6-high
+    /* normal straights: A-high down to 6-high */
     for (int high = 12; high >= 4; high--) {
         bool found = true;
         for (int r = high; r > high - 5; r--) {
@@ -302,11 +302,11 @@ int find_straight_high(const std::array<int, 13>& rank_counts) {
         if (found) return high;
     }
 
-    // wheel straight: A 2 3 4 5
+    /* wheel straight: A 2 3 4 5 */
     if (rank_counts[12] && rank_counts[0] && rank_counts[1] &&
         rank_counts[2] && rank_counts[3]) {
         return 3; // 5-high straight
     }
 
     return -1;
-}
+} /* find_straight_high() */
