@@ -4,10 +4,7 @@ A full-stack poker equity calculator that allows users to select hole cards, com
 
 ## Features
 
-- Select **Hero**, **Villain**, and **Community** cards via interactive UI
-- Card picker modal with full 52-card deck + face-down option
-- Prevents duplicate card selection
-- Clean poker-table styled UI
+- Select **Hero**, **Villain**, and **Community** cards and calculate equity for each player
 - Designed for fast simulation using a C++ backend (CPU → GPU)
 
 ## Tech Stack
