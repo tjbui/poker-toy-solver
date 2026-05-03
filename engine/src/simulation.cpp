@@ -1,126 +1,142 @@
 #include "simulation.h"
 
 #include <algorithm>
-#include <optional>
 #include <stdexcept>
-#include <string>
-#include <unordered_set>
-#include <vector>
 
-using std::optional;
-using std::string;
-using std::unordered_set;
-using std::vector;
-
-static int rank_char_to_offset(char r) {
-    switch (r) {
-        case 'A': return 1;
-        case 'K': return 2;
-        case 'Q': return 3;
-        case 'J': return 4;
-        case 'T': return 5;
-        case '9': return 6;
-        case '8': return 7;
-        case '7': return 8;
-        case '6': return 9;
-        case '5': return 10;
-        case '4': return 11;
-        case '3': return 12;
-        case '2': return 13;
-        default:
-            throw std::runtime_error("Invalid rank");
-    }
-}
-
-static int suit_base(char s) {
-    switch (s) {
-        case 'S': return 0;
-        case 'H': return 13;
-        case 'D': return 26;
-        case 'C': return 39;
-        default:
-            throw std::runtime_error("Invalid suit");
-    }
-}
-
-int card_code_to_int(const string& card) {
-    if (card.size() != 3 || card[1] != '-') {
-        throw std::runtime_error("Invalid card code: " + card);
+/*
+ * Parse card as string from EquityRequest as Card (uint8_t)
+ */
+Card parse_card(const std::string& card_str) {
+    if (card_str.size() != 2) {
+        throw std::invalid_argument("Invalid card string: " + card_str);
     }
 
-    const char suit = card[0];
-    const char rank = card[2];
-    return suit_base(suit) + rank_char_to_offset(rank);
-}
+    char rank_char = card_str[0];
+    char suit_char = card_str[1];
 
-vector<int> build_remaining_deck(const EquityRequest& request) {
-    unordered_set<int> used;
-
-    auto add_if_present = [&used](const optional<string>& maybe_card) {
-        if (maybe_card.has_value()) {
-            used.insert(card_code_to_int(*maybe_card));
-        }
-    };
-
-    for (const auto& c : request.hero.cards) {
-        add_if_present(c);
+    int rank = -1;
+    if (rank_char >= '2' && rank_char <= '9') {
+        rank = rank_char - '2';
+    } else if (rank_char == 'T' || rank_char == 't') {
+        rank = 8;
+    } else if (rank_char == 'J' || rank_char == 'j') {
+        rank = 9;
+    } else if (rank_char == 'Q' || rank_char == 'q') {
+        rank = 10;
+    } else if (rank_char == 'K' || rank_char == 'k') {
+        rank = 11;
+    } else if (rank_char == 'A' || rank_char == 'a') {
+        rank = 12;
+    } else {
+        throw std::invalid_argument("Invalid card rank: " + card_str);
     }
 
-    for (const auto& c : request.villain.cards) {
-        add_if_present(c);
+    int suit = -1;
+    if (suit_char == 'H' || suit_char == 'h') {
+        suit = 0;
+    } else if (suit_char == 'D' || suit_char == 'd') {
+        suit = 1;
+    } else if (suit_char == 'C' || suit_char == 'c') {
+        suit = 2;
+    } else if (suit_char == 'S' || suit_char == 's') {
+        suit = 3;
+    } else {
+        throw std::invalid_argument("Invalid card suit: " + card_str);
     }
 
-    for (const auto& c : request.community) {
-        add_if_present(c);
-    }
+    return static_cast<Card>(suit * 13 + rank);
+} /* parse_card() */
 
-    vector<int> deck;
-    deck.reserve(52 - static_cast<int>(used.size()));
+/*
+ * Create deck (vector of 52 Cards)
+ */
+std::vector<Card> make_deck() {
+    std::vector<Card> deck;
+    deck.reserve(52);
 
-    for (int card = 1; card <= 52; ++card) {
-        if (used.find(card) == used.end()) {
-            deck.push_back(card);
-        }
+    for (int c = 0; c < 52; c++) {
+        deck.push_back(static_cast<Card>(c));
     }
 
     return deck;
-}
+} /* make_deck() */
 
-void fill_missing_cards(
-    const EquityRequest& request,
-    vector<int>& hero_cards,
-    vector<int>& villain_cards,
-    vector<int>& community_cards,
+/*
+ * Remove card from deck (vector) using erase() 
+ */
+void remove_card_from_deck(std::vector<Card>& deck, Card card) {
+    auto it = std::find(deck.begin(), deck.end(), card);
+
+    if (it == deck.end()) {
+        throw std::invalid_argument("Duplicate or invalid card detected");
+    }
+
+    deck.erase(it); // TODO: later optimize by making deck an array instead of vector
+} /* remove_card_from_deck() */
+
+
+/*
+ * Removes hero, villain, community cards from the deck
+ */
+void remove_known_cards(
+    std::vector<Card>& deck,
+    Card hero1,
+    Card hero2,
+    Card villain1,
+    Card villain2,
+    const std::array<std::optional<Card>, 5>& known_community
+) {
+    remove_card_from_deck(deck, hero1);
+    remove_card_from_deck(deck, hero2);
+    remove_card_from_deck(deck, villain1);
+    remove_card_from_deck(deck, villain2);
+
+    for (const auto& card : known_community) {
+        if (card) {
+            remove_card_from_deck(deck, *card);
+        }
+    }
+} /* remove_known_cards() */
+
+/*
+ * Parse community card strings into array of Cards (optional for null if no entry)
+ */
+std::array<std::optional<Card>, 5> parse_community(
+    const std::array<std::optional<std::string>, 5>& community
+) {
+    std::array<std::optional<Card>, 5> parsed{};
+
+    for (int i = 0; i < 5; i++) {
+        if (community[i]) {
+            parsed[i] = parse_card(*community[i]);
+        }
+    }
+
+    return parsed;
+} /* parse_community() */
+
+/*
+ * Randomly fill out remaining community cards and for simulating hand evaluation 
+ */
+std::array<Card, 5> fill_remaining_community(
+    const std::array<std::optional<Card>, 5>& known_community,
+    const std::vector<Card>& deck,
     std::mt19937& rng
 ) {
-    hero_cards.clear();
-    villain_cards.clear();
-    community_cards.clear();
+    std::vector<Card> sim_deck = deck;
+    std::shuffle(sim_deck.begin(), sim_deck.end(), rng);
 
-    vector<int> deck = build_remaining_deck(request);
-    std::shuffle(deck.begin(), deck.end(), rng);
+    std::array<Card, 5> final_community{};
+    int draw_index = 0;
 
-    size_t next_idx = 0;
-
-    auto take_known_or_draw = [&](const optional<string>& maybe_card) -> int {
-        if (maybe_card.has_value()) {
-            return card_code_to_int(*maybe_card);
+    for (int i = 0; i < 5; i++) {
+        if (known_community[i]) {
+            final_community[i] = *known_community[i];
+        } else {
+            final_community[i] = sim_deck[draw_index];
+            draw_index++;
         }
-        if (next_idx >= deck.size()) {
-            throw std::runtime_error("Ran out of cards while drawing");
-        }
-        return deck[next_idx++];
-    };
-
-    for (const auto& c : request.hero.cards) {
-        hero_cards.push_back(take_known_or_draw(c));
     }
 
-    for (const auto& c : request.villain.cards) {
-        villain_cards.push_back(take_known_or_draw(c));
-    }
-
-    for (const auto& c : request.community) {
-        community_cards.push_back(take_known_or_draw(c));
-    }
-}
+    return final_community;
+} /* fill_remaining_community() */

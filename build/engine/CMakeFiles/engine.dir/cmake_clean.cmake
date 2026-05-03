@@ -1,12 +1,14 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/engine.dir/src/engine_iterative.cpp.o"
-  "CMakeFiles/engine.dir/src/engine_iterative.cpp.o.d"
+  "CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.o"
+  "CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.o.d"
+  "CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.o"
+  "CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.o.d"
   "CMakeFiles/engine.dir/src/evaluator.cpp.o"
   "CMakeFiles/engine.dir/src/evaluator.cpp.o.d"
   "CMakeFiles/engine.dir/src/simulation.cpp.o"
   "CMakeFiles/engine.dir/src/simulation.cpp.o.d"
+  "libengine.a"
   "libengine.pdb"
-  "libengine.so"
 )
 
 # Per-language clean rules from dependency scanning.

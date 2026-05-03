@@ -1,7 +1,8 @@
-add_library(engine SHARED
+add_library(engine
     src/evaluator.cpp
     src/simulation.cpp
-    src/engine_iterative.cpp
+    src/engine_cpu_iterative.cpp
+    src/engine_cpu_multithr.cpp
 )
 
 target_include_directories(engine
@@ -9,11 +10,25 @@ target_include_directories(engine
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-add_executable(engine_test
-    src/test_main.cpp
-)
+enable_testing()
 
-target_link_libraries(engine_test
-    PRIVATE
-        engine
-)
+function(add_engine_test test_name)
+    add_executable(${test_name}
+        tests/${test_name}.cpp
+    )
+
+    target_link_libraries(${test_name}
+        PRIVATE engine
+    )
+
+    add_test(
+        NAME ${test_name}
+        COMMAND ${test_name}
+    )
+endfunction()
+
+add_engine_test(test_eval_basic)
+add_engine_test(test_eval_flush)
+add_engine_test(test_eval_fullhouse)
+add_engine_test(test_eval_pairs)
+add_engine_test(test_equity_sim)

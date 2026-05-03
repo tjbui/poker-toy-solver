@@ -130,17 +130,69 @@ engine/fast:
 .PHONY : engine/fast
 
 #=============================================================================
-# Target rules for targets named engine_test
+# Target rules for targets named test_eval_basic
 
 # Build rule for target.
-engine_test: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 engine_test
-.PHONY : engine_test
+test_eval_basic: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_eval_basic
+.PHONY : test_eval_basic
 
 # fast build rule for target.
-engine_test/fast:
-	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/engine_test.dir/build.make engine/CMakeFiles/engine_test.dir/build
-.PHONY : engine_test/fast
+test_eval_basic/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_basic.dir/build.make engine/CMakeFiles/test_eval_basic.dir/build
+.PHONY : test_eval_basic/fast
+
+#=============================================================================
+# Target rules for targets named test_eval_flush
+
+# Build rule for target.
+test_eval_flush: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_eval_flush
+.PHONY : test_eval_flush
+
+# fast build rule for target.
+test_eval_flush/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_flush.dir/build.make engine/CMakeFiles/test_eval_flush.dir/build
+.PHONY : test_eval_flush/fast
+
+#=============================================================================
+# Target rules for targets named test_eval_fullhouse
+
+# Build rule for target.
+test_eval_fullhouse: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_eval_fullhouse
+.PHONY : test_eval_fullhouse
+
+# fast build rule for target.
+test_eval_fullhouse/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_fullhouse.dir/build.make engine/CMakeFiles/test_eval_fullhouse.dir/build
+.PHONY : test_eval_fullhouse/fast
+
+#=============================================================================
+# Target rules for targets named test_eval_pairs
+
+# Build rule for target.
+test_eval_pairs: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_eval_pairs
+.PHONY : test_eval_pairs
+
+# fast build rule for target.
+test_eval_pairs/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_eval_pairs.dir/build.make engine/CMakeFiles/test_eval_pairs.dir/build
+.PHONY : test_eval_pairs/fast
+
+#=============================================================================
+# Target rules for targets named test_equity_sim
+
+# Build rule for target.
+test_equity_sim: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_equity_sim
+.PHONY : test_equity_sim
+
+# fast build rule for target.
+test_equity_sim/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_equity_sim.dir/build.make engine/CMakeFiles/test_equity_sim.dir/build
+.PHONY : test_equity_sim/fast
 
 #=============================================================================
 # Target rules for targets named poker_backend
@@ -164,8 +216,12 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... engine"
-	@echo "... engine_test"
 	@echo "... poker_backend"
+	@echo "... test_equity_sim"
+	@echo "... test_eval_basic"
+	@echo "... test_eval_flush"
+	@echo "... test_eval_fullhouse"
+	@echo "... test_eval_pairs"
 .PHONY : help
 
 

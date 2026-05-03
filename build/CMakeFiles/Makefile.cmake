@@ -45,6 +45,10 @@ set(CMAKE_MAKEFILE_PRODUCTS
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "engine/CMakeFiles/engine.dir/DependInfo.cmake"
-  "engine/CMakeFiles/engine_test.dir/DependInfo.cmake"
+  "engine/CMakeFiles/test_eval_basic.dir/DependInfo.cmake"
+  "engine/CMakeFiles/test_eval_flush.dir/DependInfo.cmake"
+  "engine/CMakeFiles/test_eval_fullhouse.dir/DependInfo.cmake"
+  "engine/CMakeFiles/test_eval_pairs.dir/DependInfo.cmake"
+  "engine/CMakeFiles/test_equity_sim.dir/DependInfo.cmake"
   "backend/CMakeFiles/poker_backend.dir/DependInfo.cmake"
   )

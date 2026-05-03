@@ -97,39 +97,56 @@ engine/CMakeFiles/engine.dir/src/simulation.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/engine.dir/src/simulation.cpp.s"
 	cd /home/tjbui/projects/poker-equity/build/engine && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/tjbui/projects/poker-equity/engine/src/simulation.cpp -o CMakeFiles/engine.dir/src/simulation.cpp.s
 
-engine/CMakeFiles/engine.dir/src/engine_iterative.cpp.o: engine/CMakeFiles/engine.dir/flags.make
-engine/CMakeFiles/engine.dir/src/engine_iterative.cpp.o: /home/tjbui/projects/poker-equity/engine/src/engine_iterative.cpp
-engine/CMakeFiles/engine.dir/src/engine_iterative.cpp.o: engine/CMakeFiles/engine.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object engine/CMakeFiles/engine.dir/src/engine_iterative.cpp.o"
-	cd /home/tjbui/projects/poker-equity/build/engine && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT engine/CMakeFiles/engine.dir/src/engine_iterative.cpp.o -MF CMakeFiles/engine.dir/src/engine_iterative.cpp.o.d -o CMakeFiles/engine.dir/src/engine_iterative.cpp.o -c /home/tjbui/projects/poker-equity/engine/src/engine_iterative.cpp
+engine/CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.o: engine/CMakeFiles/engine.dir/flags.make
+engine/CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.o: /home/tjbui/projects/poker-equity/engine/src/engine_cpu_iterative.cpp
+engine/CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.o: engine/CMakeFiles/engine.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object engine/CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.o"
+	cd /home/tjbui/projects/poker-equity/build/engine && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT engine/CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.o -MF CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.o.d -o CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.o -c /home/tjbui/projects/poker-equity/engine/src/engine_cpu_iterative.cpp
 
-engine/CMakeFiles/engine.dir/src/engine_iterative.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/engine.dir/src/engine_iterative.cpp.i"
-	cd /home/tjbui/projects/poker-equity/build/engine && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/tjbui/projects/poker-equity/engine/src/engine_iterative.cpp > CMakeFiles/engine.dir/src/engine_iterative.cpp.i
+engine/CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.i"
+	cd /home/tjbui/projects/poker-equity/build/engine && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/tjbui/projects/poker-equity/engine/src/engine_cpu_iterative.cpp > CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.i
 
-engine/CMakeFiles/engine.dir/src/engine_iterative.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/engine.dir/src/engine_iterative.cpp.s"
-	cd /home/tjbui/projects/poker-equity/build/engine && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/tjbui/projects/poker-equity/engine/src/engine_iterative.cpp -o CMakeFiles/engine.dir/src/engine_iterative.cpp.s
+engine/CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.s"
+	cd /home/tjbui/projects/poker-equity/build/engine && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/tjbui/projects/poker-equity/engine/src/engine_cpu_iterative.cpp -o CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.s
+
+engine/CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.o: engine/CMakeFiles/engine.dir/flags.make
+engine/CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.o: /home/tjbui/projects/poker-equity/engine/src/engine_cpu_multithr.cpp
+engine/CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.o: engine/CMakeFiles/engine.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object engine/CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.o"
+	cd /home/tjbui/projects/poker-equity/build/engine && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT engine/CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.o -MF CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.o.d -o CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.o -c /home/tjbui/projects/poker-equity/engine/src/engine_cpu_multithr.cpp
+
+engine/CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.i"
+	cd /home/tjbui/projects/poker-equity/build/engine && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/tjbui/projects/poker-equity/engine/src/engine_cpu_multithr.cpp > CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.i
+
+engine/CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.s"
+	cd /home/tjbui/projects/poker-equity/build/engine && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/tjbui/projects/poker-equity/engine/src/engine_cpu_multithr.cpp -o CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.s
 
 # Object files for target engine
 engine_OBJECTS = \
 "CMakeFiles/engine.dir/src/evaluator.cpp.o" \
 "CMakeFiles/engine.dir/src/simulation.cpp.o" \
-"CMakeFiles/engine.dir/src/engine_iterative.cpp.o"
+"CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.o" \
+"CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.o"
 
 # External object files for target engine
 engine_EXTERNAL_OBJECTS =
 
-engine/libengine.so: engine/CMakeFiles/engine.dir/src/evaluator.cpp.o
-engine/libengine.so: engine/CMakeFiles/engine.dir/src/simulation.cpp.o
-engine/libengine.so: engine/CMakeFiles/engine.dir/src/engine_iterative.cpp.o
-engine/libengine.so: engine/CMakeFiles/engine.dir/build.make
-engine/libengine.so: engine/CMakeFiles/engine.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX shared library libengine.so"
+engine/libengine.a: engine/CMakeFiles/engine.dir/src/evaluator.cpp.o
+engine/libengine.a: engine/CMakeFiles/engine.dir/src/simulation.cpp.o
+engine/libengine.a: engine/CMakeFiles/engine.dir/src/engine_cpu_iterative.cpp.o
+engine/libengine.a: engine/CMakeFiles/engine.dir/src/engine_cpu_multithr.cpp.o
+engine/libengine.a: engine/CMakeFiles/engine.dir/build.make
+engine/libengine.a: engine/CMakeFiles/engine.dir/link.txt
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/tjbui/projects/poker-equity/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX static library libengine.a"
+	cd /home/tjbui/projects/poker-equity/build/engine && $(CMAKE_COMMAND) -P CMakeFiles/engine.dir/cmake_clean_target.cmake
 	cd /home/tjbui/projects/poker-equity/build/engine && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/engine.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
-engine/CMakeFiles/engine.dir/build: engine/libengine.so
+engine/CMakeFiles/engine.dir/build: engine/libengine.a
 .PHONY : engine/CMakeFiles/engine.dir/build
 
 engine/CMakeFiles/engine.dir/clean:

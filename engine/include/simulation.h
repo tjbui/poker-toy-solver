@@ -1,19 +1,35 @@
 #pragma once
 
+#include "evaluator.h"
+#include "engine.h"
+
+#include <array>
+#include <optional>
 #include <random>
 #include <string>
 #include <vector>
 
-#include "engine.h"
+Card parse_card(const std::string& card_str);
 
-int card_code_to_int(const std::string& card);
+std::vector<Card> make_deck();
 
-std::vector<int> build_remaining_deck(const EquityRequest& request);
+void remove_card_from_deck(std::vector<Card>& deck, Card card);
 
-void fill_missing_cards(
-    const EquityRequest& request,
-    std::vector<int>& hero_cards,
-    std::vector<int>& villain_cards,
-    std::vector<int>& community_cards,
+void remove_known_cards(
+    std::vector<Card>& deck,
+    Card hero1,
+    Card hero2,
+    Card villain1,
+    Card villain2,
+    const std::array<std::optional<Card>, 5>& known_community
+);
+
+std::array<std::optional<Card>, 5> parse_community(
+    const std::array<std::optional<std::string>, 5>& community
+);
+
+std::array<Card, 5> fill_remaining_community(
+    const std::array<std::optional<Card>, 5>& known_community,
+    const std::vector<Card>& deck,
     std::mt19937& rng
 );

@@ -1,240 +1,312 @@
-#include "evaluator.h"
+/* evaluator.cpp - functionality to evaluate winner between hero and villain*/
 
+#include "evaluator.h"
+#include <iostream>
 #include <algorithm>
-#include <array>
-#include <cstddef>
-#include <cstdint>
-#include <stdexcept>
 #include <vector>
 
-using std::array;
-using std::vector;
+/*
+ * Evaluates Hero_Win, Villain_Win, or Tie given villain, hero and community cards. Returns 
+ * enum class Evaluator_result. 
+ */
+result_t evaluate_hands(Card hero1, Card hero2, Card villain1, Card villain2, std::array<Card, 5> community_cards) {
+    std::array<Card, 7> hero_cards = {hero1, hero2,
+                                      community_cards[0], community_cards[1], community_cards[2],
+                                      community_cards[3], community_cards[4]};
+    std::array<Card, 7> villain_cards = {villain1, villain2,
+                                         community_cards[0], community_cards[1], community_cards[2],
+                                         community_cards[3], community_cards[4]};
+    
+    uint64_t hero_score = evaluate_7_cards(hero_cards);
+    uint64_t villain_score = evaluate_7_cards(villain_cards);
 
-static int card_id_to_rank_value(int card_id) {
-    int local = (card_id - 1) % 13 + 1;
+    if (hero_score > villain_score) return HERO_WIN;
+    if (villain_score > hero_score) return VILLAIN_WIN;
 
-    switch (local) {
-        case 1:  return 14; // A
-        case 2:  return 13; // K
-        case 3:  return 12; // Q
-        case 4:  return 11; // J
-        case 5:  return 10; // T
-        case 6:  return 9;
-        case 7:  return 8;
-        case 8:  return 7;
-        case 9:  return 6;
-        case 10: return 5;
-        case 11: return 4;
-        case 12: return 3;
-        case 13: return 2;
-        default:
-            throw std::runtime_error("Bad card_id");
-    }
-}
+    return TIE;
+} /* evaluate_hands() */
 
-static int card_id_to_suit_index(int card_id) {
-    if (card_id >= 1 && card_id <= 13) return 0;
-    if (card_id >= 14 && card_id <= 26) return 1;
-    if (card_id >= 27 && card_id <= 39) return 2;
-    if (card_id >= 40 && card_id <= 52) return 3;
-    throw std::runtime_error("Bad card_id");
-}
+/* 
+ * Returns base 13 score of [category][rank1][rank2][rank3][rank3][rank5]
+ * For example 10s full of 3s will be:
+ * category = FULL_HOUSE,
+ * rank1 = 8,
+ * rank2 = 1
+ */
+uint64_t evaluate_7_cards(std::array<Card, 7>& cards) {
+    std::array<uint8_t, 13> rank_counts = {};
+    std::array<std::vector<uint8_t>, 4> ranks_by_suit; // [ranks for suit 0, ranks for suit 1, ...]
 
-static uint64_t pack_score(hand_rank_t rank, const vector<int>& tiebreakers) {
-    uint64_t kicker_score = 0;
+    for (Card card : cards) {
+        int rank = card % 13;
+        int suit = card / 13;
 
-    for (int v : tiebreakers) {
-        kicker_score = kicker_score * 15ULL + static_cast<uint64_t>(v);
-    }
-
-    for (size_t i = tiebreakers.size(); i < 5; ++i) {
-        kicker_score = kicker_score * 15ULL;
+        rank_counts[rank]++;
+        ranks_by_suit[suit].push_back(rank);
     }
 
-    return (static_cast<uint64_t>(rank) << 24) | kicker_score;
-}
+    if (uint64_t score = try_straight_flush(ranks_by_suit)) return score;
+    if (uint64_t score = try_quads(rank_counts)) return score;
+    if (uint64_t score = try_full_house(rank_counts)) return score;
+    if (uint64_t score = try_flush(ranks_by_suit)) return score;
+    if (uint64_t score = try_straight(rank_counts)) return score;
+    if (uint64_t score = try_three_of_a_kind(rank_counts)) return score;
+    if (uint64_t score = try_two_pair(rank_counts)) return score;
+    if (uint64_t score = try_one_pair(rank_counts)) return score;
 
-static int get_straight_high(const vector<int>& ranks_desc) {
-    bool present[15] = {false};
+    return make_high_card(rank_counts);
+} /* evaluate_7_cards() */
 
-    for (int r : ranks_desc) {
-        present[r] = true;
-    }
+/*
+ * Compresses score into a 64 bit int, uses base 13 score of:
+ * [category][rank1][rank2][rank3][rank3][rank5]
+ */
+uint64_t make_score(int category, std::vector<int> ranks) {
+    uint64_t score = category;
 
-    if (present[14] && present[5] && present[4] && present[3] && present[2]) {
-        return 5;
-    }
-
-    for (int high = 14; high >= 5; --high) {
-        if (present[high] &&
-            present[high - 1] &&
-            present[high - 2] &&
-            present[high - 3] &&
-            present[high - 4]) {
-            return high;
-        }
-    }
-
-    return 0;
-}
-
-static HandValue evaluate_five_card_hand(const array<int, 5>& cards) {
-    vector<int> ranks;
-    vector<int> suits;
-    ranks.reserve(5);
-    suits.reserve(5);
-
-    for (int c : cards) {
-        ranks.push_back(card_id_to_rank_value(c));
-        suits.push_back(card_id_to_suit_index(c));
-    }
-
-    std::sort(ranks.begin(), ranks.end(), std::greater<int>());
-
-    bool flush = true;
-    for (int i = 1; i < 5; ++i) {
-        if (suits[i] != suits[0]) {
-            flush = false;
-            break;
-        }
-    }
-
-    int straight_high = get_straight_high(ranks);
-
-    int rank_count[15] = {0};
+    int count = 0;
     for (int r : ranks) {
-        rank_count[r]++;
+        score = score * 13 + r;
+        count++;
     }
 
-    vector<int> quads;
-    vector<int> trips;
-    vector<int> pairs;
-    vector<int> singles;
-
-    for (int r = 14; r >= 2; --r) {
-        if (rank_count[r] == 4) quads.push_back(r);
-        else if (rank_count[r] == 3) trips.push_back(r);
-        else if (rank_count[r] == 2) pairs.push_back(r);
-        else if (rank_count[r] == 1) singles.push_back(r);
+    while (count < 5) {
+        score = score * 13;
+        count++;
     }
 
-    if (flush && straight_high) {
-        if (straight_high == 14) {
-            return {ROYAL_FLUSH, pack_score(ROYAL_FLUSH, {14})};
-        }
-        return {STRAIGHT_FLUSH, pack_score(STRAIGHT_FLUSH, {straight_high})};
-    }
+    return score;
+} /* make_score() */
 
-    if (!quads.empty()) {
-        return {
-            FOUR_OF_A_KIND,
-            pack_score(FOUR_OF_A_KIND, {quads[0], singles[0]})
-        };
-    }
+/*
+ * Returns highest rank of the straight if there is a straight flush
+ */
+uint64_t try_straight_flush(std::array<std::vector<uint8_t>, 4>& ranks_by_suit) {
+    for (int suit = 0; suit < 4; suit++) {
+        if (ranks_by_suit[suit].size() >= 5) {
+            std::array<int, 13> suited_counts = {};
 
-    if (!trips.empty() && !pairs.empty()) {
-        return {
-            FULL_HOUSE,
-            pack_score(FULL_HOUSE, {trips[0], pairs[0]})
-        };
-    }
+            for (int rank : ranks_by_suit[suit]) {
+                suited_counts[rank]++;
+            }
 
-    if (trips.size() >= 2) {
-        return {
-            FULL_HOUSE,
-            pack_score(FULL_HOUSE, {trips[0], trips[1]})
-        };
-    }
-
-    if (flush) {
-        return {FLUSH, pack_score(FLUSH, ranks)};
-    }
-
-    if (straight_high) {
-        return {STRAIGHT, pack_score(STRAIGHT, {straight_high})};
-    }
-
-    if (!trips.empty()) {
-        return {
-            THREE_OF_A_KIND,
-            pack_score(THREE_OF_A_KIND, {trips[0], singles[0], singles[1]})
-        };
-    }
-
-    if (pairs.size() >= 2) {
-        return {
-            TWO_PAIR,
-            pack_score(TWO_PAIR, {pairs[0], pairs[1], singles[0]})
-        };
-    }
-
-    if (pairs.size() == 1) {
-        return {
-            ONE_PAIR,
-            pack_score(ONE_PAIR, {pairs[0], singles[0], singles[1], singles[2]})
-        };
-    }
-
-    return {HIGH_CARD, pack_score(HIGH_CARD, ranks)};
-}
-
-static HandValue get_best_seven_card_hand(int card0, int card1, const vector<int>& community) {
-    vector<int> all_cards;
-    all_cards.reserve(7);
-
-    all_cards.push_back(card0);
-    all_cards.push_back(card1);
-    for (int c : community) {
-        all_cards.push_back(c);
-    }
-
-    if (all_cards.size() != 7) {
-        throw std::runtime_error("Expected exactly 7 cards when evaluating best hand");
-    }
-
-    HandValue best{HIGH_CARD, 0};
-
-    for (int a = 0; a < 7; ++a) {
-        for (int b = a + 1; b < 7; ++b) {
-            for (int c = b + 1; c < 7; ++c) {
-                for (int d = c + 1; d < 7; ++d) {
-                    for (int e = d + 1; e < 7; ++e) {
-                        array<int, 5> combo = {
-                            all_cards[a],
-                            all_cards[b],
-                            all_cards[c],
-                            all_cards[d],
-                            all_cards[e]
-                        };
-
-                        HandValue hv = evaluate_five_card_hand(combo);
-                        if (hv.score > best.score) {
-                            best = hv;
-                        }
-                    }
-                }
+            int high = find_straight_high(suited_counts);
+            if (high != -1) {
+                return make_score(STRAIGHT_FLUSH, {high});
             }
         }
     }
 
-    return best;
-}
+    return 0;
+} /* try_straight_flush() */
 
-result_t evaluate_hand(
-    int hero0,
-    int hero1,
-    int villain0,
-    int villain1,
-    const vector<int>& community
-) {
-    HandValue hero_best = get_best_seven_card_hand(hero0, hero1, community);
-    HandValue villain_best = get_best_seven_card_hand(villain0, villain1, community);
+/* 
+ * Returns rank of quads and kicker
+ */
+uint64_t try_quads(std::array<uint8_t, 13>& rank_counts) {
+    for (int r = 12; r >= 0; r--) {
+        if (rank_counts[r] == 4) {
+            int kicker = -1;
 
-    if (hero_best.score > villain_best.score) {
-        return HERO_WIN;
+            for (int k = 12; k >= 0; k--) {
+                if (k != r && rank_counts[k] > 0) {
+                    kicker = k;
+                    break;
+                }
+            }
+
+            return make_score(FOUR_OF_A_KIND, {r, kicker});
+        }
     }
-    if (villain_best.score > hero_best.score) {
-        return VILLAIN_WIN;
+
+    return 0;
+} /* try_quads() */
+
+/*
+ * Returns rank of the trips and rank of pair if there is full house
+ */
+uint64_t try_full_house(std::array<uint8_t, 13>& rank_counts) {
+    int trip = -1;
+    int pair = -1;
+
+    for (int r = 12; r >= 0; r--) {
+        if (rank_counts[r] >= 3) {
+            if (trip == -1) {
+                trip = r;
+            } else if (pair == -1) {
+                pair = r;
+            }
+        }
     }
-    return TIE;
-}
+
+    for (int r = 12; r >= 0; r--) {
+        if (r != trip && rank_counts[r] >= 2) {
+            pair = r;
+            break;
+        }
+    }
+
+    if (trip != -1 && pair != -1) {
+        return make_score(FULL_HOUSE, {trip, pair});
+    }
+
+    return 0;
+} /* try_full_house() */
+
+/*
+ * Returns all five cards of flush
+ */
+uint64_t try_flush(std::array<std::vector<uint8_t>, 4>& ranks_by_suit) {
+    for (int suit = 0; suit < 4; suit++) {
+        if (ranks_by_suit[suit].size() >= 5) {
+            auto ranks = ranks_by_suit[suit];
+            std::sort(ranks.begin(), ranks.end(), std::greater<int>());
+
+            return make_score(FLUSH, {
+                ranks[0], ranks[1], ranks[2], ranks[3], ranks[4]
+            });
+        }
+    }
+
+    return 0;
+} /* try_flush() */
+
+/*
+ * Returns highest card of the straight
+ */
+uint64_t try_straight(std::array<uint8_t, 13>& rank_counts) {
+    std::array<int, 13> counts = {};
+
+    for (int i = 0; i < 13; i++) {
+        counts[i] = rank_counts[i];
+    }
+
+    int straight_high = find_straight_high(counts);
+    if (straight_high != -1) {
+        return make_score(STRAIGHT, {straight_high});
+    }
+
+    return 0;
+} /* try_straight() */
+
+/*
+ * Returns the rank of the trips/set and 2 kickers
+ */
+uint64_t try_three_of_a_kind(std::array<uint8_t, 13>& rank_counts) {
+    for (int r = 12; r >= 0; r--) {
+        if (rank_counts[r] == 3) {
+            std::vector<int> kickers;
+
+            for (int k = 12; k >= 0; k--) {
+                if (k != r && rank_counts[k] > 0) {
+                    kickers.push_back(k);
+                }
+            }
+
+            return make_score(THREE_OF_A_KIND, {r, kickers[0], kickers[1]});
+        }
+    }
+
+    return 0;
+} /* try_three_of_a_kind() */
+
+/*
+ * Returns the pairs of the two pairs plus the one kicker
+ */
+uint64_t try_two_pair(std::array<uint8_t, 13>& rank_counts) {
+    std::vector<int> pairs;
+
+    for (int r = 12; r >= 0; r--) {
+        if (rank_counts[r] >= 2) {
+            pairs.push_back(r);
+        }
+    }
+
+    if (pairs.size() >= 2) {
+        int kicker = -1;
+
+        for (int k = 12; k >= 0; k--) {
+            if (k != pairs[0] && k != pairs[1] && rank_counts[k] > 0) {
+                kicker = k;
+                break;
+            }
+        }
+
+        return make_score(TWO_PAIR, {pairs[0], pairs[1], kicker});
+    }
+
+    return 0;
+} /* try_two_pair() */
+
+/*
+ * Returns the pair plus three kickers
+ */
+uint64_t try_one_pair(std::array<uint8_t, 13>& rank_counts) {
+    std::vector<int> pairs;
+
+    for (int r = 12; r >= 0; r--) {
+        if (rank_counts[r] >= 2) {
+            pairs.push_back(r);
+        }
+    }
+
+    if (pairs.size() == 1) {
+        std::vector<int> kickers;
+
+        for (int k = 12; k >= 0; k--) {
+            if (k != pairs[0] && rank_counts[k] > 0) {
+                kickers.push_back(k);
+            }
+        }
+
+        return make_score(ONE_PAIR, {
+            pairs[0], kickers[0], kickers[1], kickers[2]
+        });
+    }
+
+    return 0;
+} /* try_one_pair() */
+
+/*
+ * Returns the highest cards in order 
+ */
+uint64_t make_high_card(std::array<uint8_t, 13>& rank_counts) {
+    std::vector<int> high_cards;
+
+    for (int r = 12; r >= 0; r--) {
+        if (rank_counts[r] > 0) {
+            high_cards.push_back(r);
+        }
+    }
+
+    return make_score(HIGH_CARD, {
+        high_cards[0], high_cards[1], high_cards[2],
+        high_cards[3], high_cards[4]
+    });
+} /* make_high_card() */
+
+/*
+ * Returns the highest rank of the straight
+ */
+int find_straight_high(const std::array<int, 13>& rank_counts) {
+    /* normal straights: A-high down to 6-high */
+    for (int high = 12; high >= 4; high--) {
+        bool found = true;
+        for (int r = high; r > high - 5; r--) {
+            if (rank_counts[r] == 0) {
+                found = false;
+                break;
+            }
+        }
+
+        if (found) return high;
+    }
+
+    /* wheel straight: A 2 3 4 5 */
+    if (rank_counts[12] && rank_counts[0] && rank_counts[1] &&
+        rank_counts[2] && rank_counts[3]) {
+        return 3; // 5-high straight
+    }
+
+    return -1;
+} /* find_straight_high() */

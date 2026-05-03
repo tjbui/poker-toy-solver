@@ -1,4 +1,11 @@
-import { RANKS, SUITS, getBackImage, getDisplayRank, getSuitClass, getSuitSymbol } from '../lib/cards'
+import {
+  RANKS,
+  SUITS,
+  getBackImage,
+  getDisplayRank,
+  getSuitClass,
+  getSuitSymbol,
+} from '../lib/cards'
 import type { CardCode, CardValue } from '../lib/cards'
 
 type CardPickerModalProps = {
@@ -18,7 +25,10 @@ export default function CardPickerModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="card-picker-modal compact" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="card-picker-modal compact"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="picker-top-row">
           <button
             type="button"
@@ -26,7 +36,11 @@ export default function CardPickerModal({
             onClick={() => onSelect('BACK')}
             title="Face down"
           >
-            <img src={getBackImage()} alt="Face down card" className="back-card-image" />
+            <img
+              src={getBackImage()}
+              alt="Face down card"
+              className="back-card-image"
+            />
           </button>
         </div>
 
@@ -34,14 +48,16 @@ export default function CardPickerModal({
           {SUITS.map((suit) => (
             <div key={suit} className="card-picker-row compact-row">
               {RANKS.map((rank) => {
-                const card = `${suit}-${rank}` as CardCode
+                const card = `${rank}${suit}` as CardCode
                 const disabled = usedCards.includes(card)
 
                 return (
                   <button
                     key={card}
                     type="button"
-                    className={`rank-suit-button ${getSuitClass(suit)} ${disabled ? 'disabled' : ''}`}
+                    className={`rank-suit-button ${getSuitClass(suit)} ${
+                      disabled ? 'disabled' : ''
+                    }`}
                     onClick={() => onSelect(card)}
                     disabled={disabled}
                     title={card}
