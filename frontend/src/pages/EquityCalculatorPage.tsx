@@ -102,27 +102,29 @@ export default function EquityCalculatorPage() {
         <h1 className="title">Poker Equity Calculator</h1>
 
         <div className="table-layout">
-          <div className="top-row">
+          <div className="poker-section hero-section">
             <TableSection title="Hero Cards">
               <CardRow
                 cards={heroCards}
                 onCardClick={(index) => handleCardClick('hero', index)}
               />
             </TableSection>
-
-            <TableSection title="Community Cards">
-              <CardRow
-                cards={communityCards}
-                onCardClick={(index) => handleCardClick('community', index)}
-              />
-            </TableSection>
           </div>
 
-          <div className="bottom-row">
+          <div className="poker-section villain-section">
             <TableSection title="Villain Cards">
               <CardRow
                 cards={villainCards}
                 onCardClick={(index) => handleCardClick('villain', index)}
+              />
+            </TableSection>
+          </div>
+
+          <div className="poker-section community-section">
+            <TableSection title="Community Cards">
+              <CardRow
+                cards={communityCards}
+                onCardClick={(index) => handleCardClick('community', index)}
               />
             </TableSection>
           </div>
@@ -138,28 +140,28 @@ export default function EquityCalculatorPage() {
             </button>
           </div>
 
-          <TableSection title="Results">
-            {!result ? (
-              <div className="results-list">
-                <p>Hero win percentage: NA</p>
-                <p>Villain win percentage: NA</p>
-                <p>Tie percentage: NA</p>
-                <p>_____ hands simulated in _____ms</p>
-              </div>
-            ) : (
-              <div className="results-list">
-                <p>Hero win percentage: {result.heroWinPct.toFixed(2)}%</p>
-                <p>Villain win percentage: {result.villainWinPct.toFixed(2)}%</p>
-                <p>Tie percentage: {result.tiePct.toFixed(2)}%</p>
-                <p>
-                  {result.simulatedHands.toLocaleString()} hands simulated in{' '}
-                  {result.runtimeMs}ms
-                </p>
-              </div>
-            )}
-          </TableSection>
-
-          
+          <div className="results-section">
+            <TableSection title="Results">
+              {!result ? (
+                <div className="results-list">
+                  <p>Hero win percentage: NA</p>
+                  <p>Villain win percentage: NA</p>
+                  <p>Tie percentage: NA</p>
+                  <p>_____ hands simulated in _____ms</p>
+                </div>
+              ) : (
+                <div className="results-list">
+                  <p>Hero win percentage: {result.heroWinPct.toFixed(2)}%</p>
+                  <p>Villain win percentage: {result.villainWinPct.toFixed(2)}%</p>
+                  <p>Tie percentage: {result.tiePct.toFixed(2)}%</p>
+                  <p>
+                    {result.simulatedHands.toLocaleString()} hands simulated in{' '}
+                    {result.runtimeMs.toFixed(2)}ms
+                  </p>
+                </div>
+              )}
+            </TableSection>
+          </div>
         </div>
       </div>
 
