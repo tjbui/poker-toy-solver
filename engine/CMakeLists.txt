@@ -2,6 +2,7 @@ add_library(engine
     src/evaluator.cpp
     src/simulation.cpp
     src/engine_cpu_iterative.cpp
+    src/engine_cpu_multithr.cpp
 )
 
 target_include_directories(engine
@@ -30,4 +31,4 @@ add_engine_test(test_eval_basic)
 add_engine_test(test_eval_flush)
 add_engine_test(test_eval_fullhouse)
 add_engine_test(test_eval_pairs)
-add_engine_test(test_sim_iterative)
+add_engine_test(test_equity_sim)

@@ -35,11 +35,20 @@ int main() {
         std::nullopt
     };
 
-    request.simulations = 10000;
+    request.simulations = 100000;
 
-    EquityResult result = get_equity_iterative(request);
+    try {
+        std::cout << "\n--- Iterative ---\n";
+        EquityResult result = get_equity_iterative(request);
+        print_equity_result(result);
 
-    print_equity_result(result);
+        std::cout << "\n--- Multithreaded ---\n";
+        result = get_equity_multithr(request);
+        print_equity_result(result);
+    } catch (const std::exception& e) {
+        std::cerr << "ERROR: " << e.what() << "\n";
+    }
+
 
     std::cout << "\n========== END test_simulator.cpp ==========\n";
 

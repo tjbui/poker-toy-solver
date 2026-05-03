@@ -5,7 +5,7 @@
 /home/tjbui/projects/poker-equity/build/engine/CMakeFiles/test_eval_flush.dir
 /home/tjbui/projects/poker-equity/build/engine/CMakeFiles/test_eval_fullhouse.dir
 /home/tjbui/projects/poker-equity/build/engine/CMakeFiles/test_eval_pairs.dir
-/home/tjbui/projects/poker-equity/build/engine/CMakeFiles/test_sim_iterative.dir
+/home/tjbui/projects/poker-equity/build/engine/CMakeFiles/test_equity_sim.dir
 /home/tjbui/projects/poker-equity/build/engine/CMakeFiles/edit_cache.dir
 /home/tjbui/projects/poker-equity/build/engine/CMakeFiles/rebuild_cache.dir
 /home/tjbui/projects/poker-equity/build/backend/CMakeFiles/poker_backend.dir

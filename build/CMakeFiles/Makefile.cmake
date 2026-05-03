@@ -49,6 +49,6 @@ set(CMAKE_DEPEND_INFO_FILES
   "engine/CMakeFiles/test_eval_flush.dir/DependInfo.cmake"
   "engine/CMakeFiles/test_eval_fullhouse.dir/DependInfo.cmake"
   "engine/CMakeFiles/test_eval_pairs.dir/DependInfo.cmake"
-  "engine/CMakeFiles/test_sim_iterative.dir/DependInfo.cmake"
+  "engine/CMakeFiles/test_equity_sim.dir/DependInfo.cmake"
   "backend/CMakeFiles/poker_backend.dir/DependInfo.cmake"
   )

@@ -1,5 +1,5 @@
-engine/CMakeFiles/test_sim_iterative.dir/tests/test_sim_iterative.cpp.o: \
- /home/tjbui/projects/poker-equity/engine/tests/test_sim_iterative.cpp \
+engine/CMakeFiles/test_equity_sim.dir/tests/test_equity_sim.cpp.o: \
+ /home/tjbui/projects/poker-equity/engine/tests/test_equity_sim.cpp \
  /usr/include/stdc-predef.h \
  /home/tjbui/projects/poker-equity/engine/include/engine.h \
  /usr/include/c++/13/optional /usr/include/c++/13/type_traits \

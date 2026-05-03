@@ -105,7 +105,7 @@ int main() {
 
             request.simulations = body.at("simulations").get<int>();
 
-            EquityResult result = get_equity_iterative(request);
+            EquityResult result = get_equity_multithr(request);
 
             json response = {
                 {"heroWinPct", result.heroWinPct},

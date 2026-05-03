@@ -182,17 +182,17 @@ test_eval_pairs/fast:
 .PHONY : test_eval_pairs/fast
 
 #=============================================================================
-# Target rules for targets named test_sim_iterative
+# Target rules for targets named test_equity_sim
 
 # Build rule for target.
-test_sim_iterative: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_sim_iterative
-.PHONY : test_sim_iterative
+test_equity_sim: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_equity_sim
+.PHONY : test_equity_sim
 
 # fast build rule for target.
-test_sim_iterative/fast:
-	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_sim_iterative.dir/build.make engine/CMakeFiles/test_sim_iterative.dir/build
-.PHONY : test_sim_iterative/fast
+test_equity_sim/fast:
+	$(MAKE) $(MAKESILENT) -f engine/CMakeFiles/test_equity_sim.dir/build.make engine/CMakeFiles/test_equity_sim.dir/build
+.PHONY : test_equity_sim/fast
 
 #=============================================================================
 # Target rules for targets named poker_backend
@@ -217,11 +217,11 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... engine"
 	@echo "... poker_backend"
+	@echo "... test_equity_sim"
 	@echo "... test_eval_basic"
 	@echo "... test_eval_flush"
 	@echo "... test_eval_fullhouse"
 	@echo "... test_eval_pairs"
-	@echo "... test_sim_iterative"
 .PHONY : help
 
 
