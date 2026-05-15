@@ -83,23 +83,39 @@ export default function EquityCalculatorPage() {
   return (
     <div className="page">
       <div className="table-shell">
-        <div className="github-row">
-          <p className="name">Tru Bui</p>
-          <a
-            href="https://github.com/tjbui/poker-equity"
-            target="_blank"
-            rel="noreferrer"
-            className="github-link-icon"
-          >
-            <img
-              src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
-              alt="GitHub"
-              className="github-logo"
-            />
+        <nav className="top-nav">
+          <a href="https:www.tjbui.dev" className="brand-link">
+            Tru Bui
           </a>
-        </div>
 
-        <h1 className="title">Poker Equity Calculator</h1>
+          <div className="nav-links">
+            <a href="/" className="nav-link active">
+              Exact vs Exact Equity
+            </a>
+
+            <a href="#" className="nav-link">
+              Range vs Range Equity
+            </a>
+
+            <a href="#" className="nav-link">
+              Toy Solver
+            </a>
+
+            <a
+              href="https://github.com/tjbui/poker-equity"
+              target="_blank"
+              rel="noreferrer"
+              className="github-link-icon"
+              aria-label="GitHub repository"
+            >
+              <img
+                src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/github/github-original.svg"
+                alt=""
+                className="github-logo"
+              />
+            </a>
+          </div>
+        </nav>
 
         <div className="table-layout">
           <div className="poker-section hero-section">
