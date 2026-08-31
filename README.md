@@ -1,6 +1,6 @@
 # poker-equity
 
-A C++17 project that merges two things:
+A C++17 project that merges two components:
 
 1. A poker equity engine
 2. A toy poker solver built on CFR (Counterfactual Regret Minimization),
