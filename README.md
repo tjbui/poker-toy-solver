@@ -1,4 +1,4 @@
-# poker-equity
+# poker-toy-solver
 
 A C++17 project that merges two components:
 
