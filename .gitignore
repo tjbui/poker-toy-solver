@@ -1,0 +1,13 @@
+# Build output
+/build/
+
+# Compiled artifacts
+*.out
+*.o
+*.obj
+
+# Editor / OS
+.DS_Store
+
+# Claude Code local settings (personal, not shared)
+.claude/settings.local.json
