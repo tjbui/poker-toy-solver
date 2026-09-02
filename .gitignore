@@ -12,3 +12,6 @@
 
 # Claude Code local settings (personal, not shared)
 .claude/settings.local.json
+
+# Personal project context (kept local, not published)
+CLAUDE.md
