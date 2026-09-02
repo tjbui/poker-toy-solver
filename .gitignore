@@ -8,6 +8,7 @@
 
 # Editor / OS
 .DS_Store
+.vscode/
 
 # Claude Code local settings (personal, not shared)
 .claude/settings.local.json
