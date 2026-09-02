@@ -10,8 +10,6 @@
 .DS_Store
 .vscode/
 
-# Claude Code local settings (personal, not shared)
-.claude/settings.local.json
-
-# Personal project context (kept local, not published)
+# Personal project context
 CLAUDE.md
+.claude/settings.local.json
