@@ -2,7 +2,7 @@
  * equity_cli.cpp -- terminal equity calculator (replaces the old HTTP backend).
  *
  * Usage:
- *   equity_cli HERO VILLAIN [BOARD]
+ *   equity_cli [--gpu] HERO VILLAIN [BOARD]
  *
  *   HERO / VILLAIN
  *     exact hand : "AhKd"
@@ -74,24 +74,37 @@ static std::array<std::optional<std::string>, 5> parse_board(const std::string& 
 }
 
 int main(int argc, char** argv) {
-    if (argc < 3) {
+    // Pull out the optional --gpu flag; the rest are positional.
+    bool use_gpu = false;
+    std::vector<std::string> args;
+    for (int i = 1; i < argc; i++) {
+        std::string a = argv[i];
+        if (a == "--gpu") {
+            use_gpu = true;
+        } else {
+            args.push_back(a);
+        }
+    }
+
+    if (args.size() < 2) {
         std::cout <<
-            "Usage: equity_cli HERO VILLAIN [BOARD]\n"
+            "Usage: equity_cli [--gpu] HERO VILLAIN [BOARD]\n"
             "  HERO/VILLAIN : exact \"AhKd\"  or  range \"AA,KK,AKs\"\n"
             "  BOARD        : 0/3/4/5 cards, e.g. \"7h8s9c\"\n"
+            "  --gpu        : use the CUDA backend (CUDA builds only)\n"
             "Example: equity_cli AhKd 2c2d 7h8s9c\n";
         return 1;
     }
 
     try {
         EquityRequest request{};
-        request.hero = parse_player(argv[1]);
-        request.villain = parse_player(argv[2]);
-        if (argc >= 4) {
-            request.community = parse_board(argv[3]);
+        request.hero = parse_player(args[0]);
+        request.villain = parse_player(args[1]);
+        if (args.size() >= 3) {
+            request.community = parse_board(args[2]);
         }
 
-        EquityResult r = get_equity_multithr(request);
+        EquityResult r = use_gpu ? get_equity_cuda(request) : get_equity_multithr(request);
 
         std::cout.setf(std::ios::fixed);
         std::cout.precision(2);
