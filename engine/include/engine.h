@@ -53,7 +53,7 @@ enum class CudaKernel {
 };
 
 struct CudaOptions {
-    CudaKernel kernel = CudaKernel::Chunked;
+    CudaKernel kernel = CudaKernel::GridStride;   // measured faster or equal (docs/notes/cuda-notes.md)
     bool blockReduce = true;     // warp-shuffle block reduction (false: one atomicAdd per thread)
     bool pinnedUpload = false;   // stage the matchup upload through pinned host memory
 };

@@ -40,3 +40,7 @@ add_executable(rps_cfr examples/rps_cfr.cpp)
 # Terminal equity calculator — links the engine (replaces the old HTTP backend).
 add_executable(equity_cli examples/equity_cli.cpp)
 target_link_libraries(equity_cli PRIVATE engine)
+
+# Benchmark: iterative vs multithreaded vs CUDA backends.
+add_executable(equity_bench examples/equity_bench.cpp)
+target_link_libraries(equity_bench PRIVATE engine)
