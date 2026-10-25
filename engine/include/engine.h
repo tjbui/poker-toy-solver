@@ -44,3 +44,34 @@ EquityResult get_equity_iterative(const EquityRequest& request);
 
 // Exact enumeration, multi-threaded (same numbers as the iterative version).
 EquityResult get_equity_multithr(const EquityRequest& request);
+
+// ---- CUDA backend -------------------------------------------------------
+
+enum class CudaKernel {
+    GridStride,   // each thread strides through the work space, unranking every index
+    Chunked       // each thread owns a contiguous chunk: unrank once, then step
+};
+
+struct CudaOptions {
+    CudaKernel kernel = CudaKernel::Chunked;
+    bool blockReduce = true;     // warp-shuffle block reduction (false: one atomicAdd per thread)
+    bool pinnedUpload = false;   // stage the matchup upload through pinned host memory
+};
+
+// Optional timing breakdown filled in by get_equity_cuda.
+struct CudaStats {
+    double pinnedPrepMs = 0.0;  // pinnedUpload only: cudaMallocHost + staging memcpy
+    double uploadMs = 0.0;      // host -> device copy of the matchup list (cudaEvent timed)
+    double kernelMs = 0.0;      // kernel only (cudaEvent timed)
+    int blocks = 0;
+    int threadsPerBlock = 0;
+};
+
+// Exact enumeration on the GPU (same numbers as the CPU versions).
+// Throws std::runtime_error if the engine was built without CUDA.
+EquityResult get_equity_cuda(const EquityRequest& request,
+                             const CudaOptions& options = {},
+                             CudaStats* stats = nullptr);
+
+// True if this build of the engine includes the CUDA backend.
+bool cuda_available();
