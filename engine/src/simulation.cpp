@@ -336,10 +336,11 @@ EquityCounts count_slice(
                 board[known_count + j] = deck[combo[j]];
             }
 
-            result_t r = evaluate_hands(mu.h1, mu.h2, mu.v1, mu.v2, board);
-            if (r == HERO_WIN) {
+            // inlined shared evaluator (same code the CUDA kernel runs)
+            int r = hand_eval::compare(mu.h1, mu.h2, mu.v1, mu.v2, board.data());
+            if (r > 0) {
                 counts.hero_wins++;
-            } else if (r == VILLAIN_WIN) {
+            } else if (r < 0) {
                 counts.villain_wins++;
             } else {
                 counts.ties++;
