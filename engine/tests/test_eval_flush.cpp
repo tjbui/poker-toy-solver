@@ -59,5 +59,5 @@ int main() {
     );
 
     std::cout << "========== END test_eval_flush.cpp ==========\n";
-    return 0;
+    return g_test_failures == 0 ? 0 : 1;
 }

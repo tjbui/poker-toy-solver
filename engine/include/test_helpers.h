@@ -2,6 +2,10 @@
 
 #include "evaluator.h"
 #include <iostream>
+#include <string>
+
+// Number of failed print_test checks; tests return non-zero if any failed.
+inline int g_test_failures = 0;
 
 inline const char* rank_to_string(int rank) {
     const char* ranks[] = {
@@ -59,5 +63,6 @@ inline void print_test(const char* name, Card hero1, Card hero2, Card villain1, 
         std::cout << "[PASS]\n\n";
     } else {
         std::cout << "[FAIL]\n\n";
+        g_test_failures++;
     }
 }
