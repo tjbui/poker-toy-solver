@@ -9,7 +9,7 @@
  * "kernel" = GPU kernel only, timed with cudaEvents.
  */
 
-#include "engine.h"
+#include "equity/equity.h"
 
 #include <algorithm>
 #include <array>
@@ -18,6 +18,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+
+using namespace equity;
 
 namespace {
 
@@ -36,15 +38,16 @@ double median(std::vector<double> v) {
     return v[v.size() / 2];
 }
 
-using Backend = std::function<EquityResult(const EquityRequest&, CudaStats*)>;
+// One way of running the engine: fills `stats` when it runs on the GPU.
+using Runner = std::function<EquityResult(const EquityRequest&, GpuStats*)>;
 
-Timing measure(const Backend& fn, const EquityRequest& req, int reps) {
-    CudaStats st;
+Timing measure(const Runner& fn, const EquityRequest& req, int reps) {
+    GpuStats st;
     fn(req, &st);                                   // warm-up
     std::vector<double> total, kernel, upload, prep;
     Timing t;
     for (int i = 0; i < reps; i++) {
-        st = CudaStats{};
+        st = GpuStats{};
         t.result = fn(req, &st);
         total.push_back(t.result.runtimeMs);
         kernel.push_back(st.kernelMs);
@@ -60,21 +63,23 @@ Timing measure(const Backend& fn, const EquityRequest& req, int reps) {
     return t;
 }
 
-Backend cpu_iterative() {
-    return [](const EquityRequest& r, CudaStats*) { return get_equity_iterative(r); };
+Runner cpu(Backend backend) {
+    return [=](const EquityRequest& r, GpuStats*) {
+        EquityOptions opt;
+        opt.backend = backend;
+        return compute_equity(r, opt);
+    };
 }
 
-Backend cpu_multithr() {
-    return [](const EquityRequest& r, CudaStats*) { return get_equity_multithr(r); };
-}
-
-Backend gpu(CudaKernel kernel, bool block_reduce = true, bool pinned = false) {
-    return [=](const EquityRequest& r, CudaStats* st) {
-        CudaOptions opt;
-        opt.kernel = kernel;
-        opt.blockReduce = block_reduce;
-        opt.pinnedUpload = pinned;
-        return get_equity_cuda(r, opt, st);
+Runner gpu(GpuKernel kernel, bool block_reduce = true, bool pinned = false) {
+    return [=](const EquityRequest& r, GpuStats* st) {
+        EquityOptions opt;
+        opt.backend = Backend::Gpu;
+        opt.gpu.kernel = kernel;
+        opt.gpu.blockReduce = block_reduce;
+        opt.gpu.pinnedUpload = pinned;
+        opt.gpuStats = st;
+        return compute_equity(r, opt);
     };
 }
 
@@ -112,7 +117,7 @@ std::vector<std::string> all_hands() {
 
 struct Row {
     std::string name;
-    Backend fn;
+    Runner fn;
     int reps;
     bool gpu;
 };
@@ -124,8 +129,8 @@ void run_case(const std::string& title, const EquityRequest& req, const std::vec
 
     double mt_ms = 0.0;
     for (const Row& row : rows) {
-        if (row.gpu && !cuda_available()) {
-            std::printf("%-30s %14s\n", row.name.c_str(), "(no CUDA)");
+        if (row.gpu && !gpu_available()) {
+            std::printf("%-30s %14s\n", row.name.c_str(), "(no GPU)");
             continue;
         }
         Timing t = measure(row.fn, req, row.reps);
@@ -155,12 +160,12 @@ int main() {
         r.hero = exact_hand("AS", "AH");
         r.villain = exact_hand("KS", "KD");
         run_case("preflop exact: AsAh vs KsKd", r, {
-            {"cpu iterative", cpu_iterative(), 3, false},
-            {"cpu multithread", cpu_multithr(), 5, false},
-            {"cuda grid-stride", gpu(CudaKernel::GridStride), 5, true},
-            {"cuda chunked", gpu(CudaKernel::Chunked), 5, true},
-            {"cuda grid-stride (atomics)", gpu(CudaKernel::GridStride, false), 5, true},
-            {"cuda chunked (atomics)", gpu(CudaKernel::Chunked, false), 5, true},
+            {"cpu single", cpu(Backend::CpuSingle), 3, false},
+            {"cpu multithread", cpu(Backend::CpuMulti), 5, false},
+            {"gpu grid-stride", gpu(GpuKernel::GridStride), 5, true},
+            {"gpu chunked", gpu(GpuKernel::Chunked), 5, true},
+            {"gpu grid-stride (atomics)", gpu(GpuKernel::GridStride, false), 5, true},
+            {"gpu chunked (atomics)", gpu(GpuKernel::Chunked, false), 5, true},
         });
     }
 
@@ -170,11 +175,11 @@ int main() {
         r.hero = range_hand({"AA", "KK", "QQ", "AKs"});
         r.villain = range_hand({"JJ", "TT", "AQs", "KQs"});
         run_case("preflop range vs range: AA,KK,QQ,AKs vs JJ,TT,AQs,KQs", r, {
-            {"cpu multithread", cpu_multithr(), 3, false},
-            {"cuda grid-stride", gpu(CudaKernel::GridStride), 5, true},
-            {"cuda chunked", gpu(CudaKernel::Chunked), 5, true},
-            {"cuda grid-stride (atomics)", gpu(CudaKernel::GridStride, false), 5, true},
-            {"cuda chunked (atomics)", gpu(CudaKernel::Chunked, false), 5, true},
+            {"cpu multithread", cpu(Backend::CpuMulti), 3, false},
+            {"gpu grid-stride", gpu(GpuKernel::GridStride), 5, true},
+            {"gpu chunked", gpu(GpuKernel::Chunked), 5, true},
+            {"gpu grid-stride (atomics)", gpu(GpuKernel::GridStride, false), 5, true},
+            {"gpu chunked (atomics)", gpu(GpuKernel::Chunked, false), 5, true},
         });
     }
 
@@ -188,10 +193,10 @@ int main() {
         r.community = {std::string("2C"), std::string("7D"), std::string("9S"),
                        std::string("TH"), std::string("3H")};
         run_case("river, full range vs full range (pageable vs pinned upload)", r, {
-            {"cpu multithread", cpu_multithr(), 3, false},
-            {"cuda chunked (pageable)", gpu(CudaKernel::Chunked, true, false), 7, true},
-            {"cuda chunked (pinned)", gpu(CudaKernel::Chunked, true, true), 7, true},
-            {"cuda grid-stride (pageable)", gpu(CudaKernel::GridStride, true, false), 7, true},
+            {"cpu multithread", cpu(Backend::CpuMulti), 3, false},
+            {"gpu chunked (pageable)", gpu(GpuKernel::Chunked, true, false), 7, true},
+            {"gpu chunked (pinned)", gpu(GpuKernel::Chunked, true, true), 7, true},
+            {"gpu grid-stride (pageable)", gpu(GpuKernel::GridStride, true, false), 7, true},
         });
     }
 
@@ -203,10 +208,10 @@ int main() {
         r.community = {std::string("2C"), std::string("7D"), std::string("9S"),
                        std::nullopt, std::nullopt};
         run_case("flop, full range vs full range (~1B runouts)", r, {
-            {"cpu multithread", cpu_multithr(), 1, false},
-            {"cuda grid-stride", gpu(CudaKernel::GridStride), 3, true},
-            {"cuda chunked", gpu(CudaKernel::Chunked), 3, true},
-            {"cuda chunked (pinned)", gpu(CudaKernel::Chunked, true, true), 3, true},
+            {"cpu multithread", cpu(Backend::CpuMulti), 1, false},
+            {"gpu grid-stride", gpu(GpuKernel::GridStride), 3, true},
+            {"gpu chunked", gpu(GpuKernel::Chunked), 3, true},
+            {"gpu chunked (pinned)", gpu(GpuKernel::Chunked, true, true), 3, true},
         });
     }
 

@@ -1,6 +1,5 @@
 /* test_eval_basic.cpp - test evaluator functionality (FLUSH) */
 
-#include "evaluator.h"
 #include "test_helpers.h"
 
 int main() {

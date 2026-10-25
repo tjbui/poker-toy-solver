@@ -1,27 +1,23 @@
-/* engine_cuda.cu -- exact equity by enumeration on the GPU */
+/* gpu_backend.cu -- exact equity by enumeration on the GPU */
 
-#include "engine.h"
-#include "hand_eval.h"
-#include "simulation.h"
+#include "gpu_backend.h"
 
 #include <cuda_runtime.h>
 
 #include <algorithm>
-#include <array>
 #include <chrono>
 #include <cstdint>
 #include <cstring>
-#include <optional>
 #include <stdexcept>
 #include <string>
-#include <vector>
+
+#include "common/combinatorics.h"
+#include "common/hand_eval.h"
 
 /*
- * Same work space as the CPU engines: the flat index range [0, total) over
- * (matchup x board), where board b of matchup m is the b-th lexicographic
- * k-subset of the cards not used by that matchup's holes or the known board.
- * The GPU enumerates the same set of boards with the same evaluator, so the
- * counts match the CPU exactly.
+ * Same work space as the CPU backends (see workload.h): the flat index range
+ * [0, total) over (matchup x board). The GPU enumerates the same boards with
+ * the same evaluator, so the counts match the CPU exactly.
  */
 
 #define CUDA_CHECK(call)                                                       \
@@ -33,6 +29,8 @@
                                      __FILE__ + ":" + std::to_string(__LINE__) + ")"); \
         }                                                                      \
     } while (0)
+
+namespace equity {
 
 namespace {
 
@@ -48,6 +46,7 @@ static_assert(sizeof(Matchup) == 4, "Matchup must stay 4 packed bytes for the up
 __constant__ ull c_choose[kMaxN + 1][kMaxK + 1];
 __constant__ Card c_known[5];
 
+// Kernel arguments (passed by value).
 struct Work {
     const Matchup* matchups;
     ull total;        // matchups * boards
@@ -122,7 +121,7 @@ __device__ inline void unrank_cards(ull r, ull used, int n, int k, Card* out) {
     }
 }
 
-// Chunked helper: r-th lexicographic k-subset of positions {0..n-1}.
+// Chunked helper: r-th lexicographic k-subset of positions {0..n-1}, table-driven.
 __device__ inline void unrank_positions(ull r, int n, int k, int* combo) {
     int x = 0;
     for (int i = 0; i < k; i++) {
@@ -135,14 +134,6 @@ __device__ inline void unrank_positions(ull r, int n, int k, int* combo) {
         combo[i] = x;
         x++;
     }
-}
-
-__device__ inline void next_combination(int* combo, int n, int k) {
-    int i = k - 1;
-    while (i >= 0 && combo[i] == n - k + i) i--;
-    if (i < 0) return;
-    combo[i]++;
-    for (int j = i + 1; j < k; j++) combo[j] = combo[j - 1] + 1;
 }
 
 __device__ inline ull warp_sum(ull v) {
@@ -235,7 +226,7 @@ __global__ void kernel_grid_stride(Work w) {
 /*
  * Chunked: thread t owns the contiguous range [t*chunk, (t+1)*chunk). It
  * unranks once per matchup it touches, then steps with next_combination --
- * the same scheme the CPU count_slice() uses per thread.
+ * the same scheme the CPU backend uses per thread.
  */
 template <bool BlockReduce>
 __global__ void kernel_chunked(Work w, ull chunk) {
@@ -293,9 +284,9 @@ void pick_launch(Kernel kernel, ull total, int& blocks, int& threads) {
 }
 
 template <bool BlockReduce>
-void launch(const CudaOptions& opt, const Work& w, CudaStats& st, cudaStream_t stream) {
+void launch(const GpuOptions& opt, const Work& w, GpuStats& st, cudaStream_t stream) {
     int blocks = 0, threads = 0;
-    if (opt.kernel == CudaKernel::GridStride) {
+    if (opt.kernel == GpuKernel::GridStride) {
         pick_launch(kernel_grid_stride<BlockReduce>, w.total, blocks, threads);
         kernel_grid_stride<BlockReduce><<<blocks, threads, 0, stream>>>(w);
     } else {
@@ -311,19 +302,16 @@ void launch(const CudaOptions& opt, const Work& w, CudaStats& st, cudaStream_t s
 
 } // namespace
 
-bool cuda_available() {
-    int count = 0;
-    return cudaGetDeviceCount(&count) == cudaSuccess && count > 0;
+bool gpu_device_available() {
+    static const bool available = [] {
+        int count = 0;
+        return cudaGetDeviceCount(&count) == cudaSuccess && count > 0;
+    }();
+    return available;
 }
 
-EquityResult get_equity_cuda(const EquityRequest& request, const CudaOptions& options,
-                             CudaStats* stats) {
-    auto start = std::chrono::high_resolution_clock::now();
-    CudaStats st;
-
-    std::array<std::optional<Card>, 5> known_community;
-    std::vector<Matchup> matchups = prepare_matchups(request, known_community);
-    const ull total = total_runouts(matchups, known_community);
+EquityCounts gpu_count(const Workload& wl, const GpuOptions& options, GpuStats* stats) {
+    GpuStats st;
 
     // Constant memory: C(n, k) table and the known board.
     ull choose[kMaxN + 1][kMaxK + 1];
@@ -331,27 +319,21 @@ EquityResult get_equity_cuda(const EquityRequest& request, const CudaOptions& op
         for (int k = 0; k <= kMaxK; k++) choose[n][k] = n_choose_k(n, k);
     }
     CUDA_CHECK(cudaMemcpyToSymbol(c_choose, choose, sizeof(choose)));
-
-    Card known[5] = {0, 0, 0, 0, 0};
-    int known_count = 0;
-    for (const auto& c : known_community) {
-        if (c) known[known_count++] = *c;
-    }
-    CUDA_CHECK(cudaMemcpyToSymbol(c_known, known, sizeof(known)));
+    CUDA_CHECK(cudaMemcpyToSymbol(c_known, wl.known.data(), sizeof(Card) * 5));
 
     CudaStream stream;
-    DeviceBuffer<Matchup> d_matchups(matchups.size());
+    DeviceBuffer<Matchup> d_matchups(wl.matchups.size());
     DeviceBuffer<ull> d_counts(3);
     CUDA_CHECK(cudaMemsetAsync(d_counts.ptr, 0, 3 * sizeof(ull), stream.s));
 
     // Upload the matchup list: pageable cudaMemcpy, or staged through pinned memory.
-    const std::size_t bytes = matchups.size() * sizeof(Matchup);
+    const std::size_t bytes = wl.matchups.size() * sizeof(Matchup);
     CudaEvent up_start, up_stop, k_start, k_stop;
     if (options.pinnedUpload) {
-        auto prep0 = std::chrono::high_resolution_clock::now();
-        PinnedBuffer<Matchup> staging(matchups.size());
-        std::memcpy(staging.ptr, matchups.data(), bytes);
-        auto prep1 = std::chrono::high_resolution_clock::now();
+        auto prep0 = std::chrono::steady_clock::now();
+        PinnedBuffer<Matchup> staging(wl.matchups.size());
+        std::memcpy(staging.ptr, wl.matchups.data(), bytes);
+        auto prep1 = std::chrono::steady_clock::now();
         st.pinnedPrepMs = std::chrono::duration<double, std::milli>(prep1 - prep0).count();
 
         CUDA_CHECK(cudaEventRecord(up_start.e, stream.s));
@@ -360,16 +342,16 @@ EquityResult get_equity_cuda(const EquityRequest& request, const CudaOptions& op
         CUDA_CHECK(cudaStreamSynchronize(stream.s));   // staging must outlive the copy
     } else {
         CUDA_CHECK(cudaEventRecord(up_start.e, stream.s));
-        CUDA_CHECK(cudaMemcpyAsync(d_matchups.ptr, matchups.data(), bytes, cudaMemcpyHostToDevice, stream.s));
+        CUDA_CHECK(cudaMemcpyAsync(d_matchups.ptr, wl.matchups.data(), bytes, cudaMemcpyHostToDevice, stream.s));
         CUDA_CHECK(cudaEventRecord(up_stop.e, stream.s));
     }
 
     Work w{};
     w.matchups = d_matchups.ptr;
-    w.total = total;
-    w.boards = n_choose_k(48 - known_count, 5 - known_count);
-    w.known_count = known_count;
-    w.k = 5 - known_count;
+    w.total = wl.total;
+    w.boards = wl.boards;
+    w.known_count = wl.knownCount;
+    w.k = wl.k;
     w.counts = d_counts.ptr;
 
     CUDA_CHECK(cudaEventRecord(k_start.e, stream.s));
@@ -389,20 +371,13 @@ EquityResult get_equity_cuda(const EquityRequest& request, const CudaOptions& op
     CUDA_CHECK(cudaEventElapsedTime(&k_ms, k_start.e, k_stop.e));
     st.uploadMs = up_ms;
     st.kernelMs = k_ms;
-
-    if (counts[0] + counts[1] + counts[2] != total) {
-        throw std::runtime_error("get_equity_cuda: kernel counted " +
-                                 std::to_string(counts[0] + counts[1] + counts[2]) +
-                                 " runouts, expected " + std::to_string(total));
-    }
-
-    EquityCounts ec;
-    ec.hero_wins = counts[0];
-    ec.villain_wins = counts[1];
-    ec.ties = counts[2];
-    ec.runouts = total;
-
-    auto end = std::chrono::high_resolution_clock::now();
     if (stats) *stats = st;
-    return finalize_result(ec, std::chrono::duration<double, std::milli>(end - start).count());
+
+    EquityCounts result;
+    result.heroWins = counts[0];
+    result.villainWins = counts[1];
+    result.ties = counts[2];
+    return result;
 }
+
+} // namespace equity

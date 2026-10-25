@@ -1,6 +1,6 @@
-/* test_equity_cuda.cpp -- the GPU backend must match the CPU backend EXACTLY */
+/* test_equity_gpu.cpp -- the GPU backend must match the CPU backend EXACTLY */
 
-#include "engine.h"
+#include "equity/equity.h"
 
 #include <array>
 #include <cstdint>
@@ -8,6 +8,8 @@
 #include <optional>
 #include <string>
 #include <vector>
+
+using namespace equity;
 
 static int g_failures = 0;
 
@@ -43,15 +45,31 @@ static bool same(const EquityResult& a, const EquityResult& b) {
            a.tiePct == b.tiePct;
 }
 
+static EquityResult cpu(const EquityRequest& req) {
+    EquityOptions o;
+    o.backend = Backend::CpuMulti;
+    return compute_equity(req, o);
+}
+
+static EquityResult gpu(const EquityRequest& req, GpuKernel kernel,
+                        bool block_reduce = true, bool pinned = false) {
+    EquityOptions o;
+    o.backend = Backend::Gpu;
+    o.gpu.kernel = kernel;
+    o.gpu.blockReduce = block_reduce;
+    o.gpu.pinnedUpload = pinned;
+    return compute_equity(req, o);
+}
+
 struct Case {
     std::string name;
     EquityRequest req;
 };
 
 int main() {
-    std::cout << "\n========== test_equity_cuda ==========\n\n";
+    std::cout << "\n========== test_equity_gpu ==========\n\n";
 
-    if (!cuda_available()) {
+    if (!gpu_available()) {
         std::cout << "[FAIL] no CUDA device available\n";
         return 1;
     }
@@ -88,34 +106,34 @@ int main() {
         cases.push_back({"range vs range preflop", r});
     }
 
-    const CudaKernel kernels[] = {CudaKernel::GridStride, CudaKernel::Chunked};
+    const GpuKernel kernels[] = {GpuKernel::GridStride, GpuKernel::Chunked};
     const char* kernel_names[] = {"grid-stride", "chunked"};
 
     for (const Case& c : cases) {
-        EquityResult cpu = get_equity_multithr(c.req);
+        EquityResult ref = cpu(c.req);
         for (int k = 0; k < 2; k++) {
-            CudaOptions opt;
-            opt.kernel = kernels[k];
-            EquityResult gpu = get_equity_cuda(c.req, opt);
-            check(same(cpu, gpu), c.name + " [" + kernel_names[k] + "]");
+            check(same(ref, gpu(c.req, kernels[k])), c.name + " [" + kernel_names[k] + "]");
         }
     }
 
     // Other code paths: per-thread atomics instead of block reduction, pinned upload.
     {
-        const EquityRequest& r = cases[4].req;
-        EquityResult cpu = get_equity_multithr(r);
+        const EquityRequest& r = cases[5].req;
+        EquityResult ref = cpu(r);
         for (int k = 0; k < 2; k++) {
-            CudaOptions opt;
-            opt.kernel = kernels[k];
-            opt.blockReduce = false;
-            check(same(cpu, get_equity_cuda(r, opt)),
+            check(same(ref, gpu(r, kernels[k], false)),
                   std::string("per-thread atomics [") + kernel_names[k] + "]");
-            opt.blockReduce = true;
-            opt.pinnedUpload = true;
-            check(same(cpu, get_equity_cuda(r, opt)),
+            check(same(ref, gpu(r, kernels[k], true, true)),
                   std::string("pinned upload [") + kernel_names[k] + "]");
         }
+    }
+
+    // Auto sends a large job to the GPU (and still matches the CPU).
+    {
+        const EquityRequest& r = cases[0].req;              // 1.7M runouts
+        EquityResult aut = compute_equity(r);
+        check(aut.backend == Backend::Gpu, "Auto sends a large job to the GPU");
+        check(same(cpu(r), aut), "Auto (gpu) == cpu-multi");
     }
 
     std::cout << "\n" << (g_failures == 0 ? "ALL PASSED" : "FAILURES: " + std::to_string(g_failures))

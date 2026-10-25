@@ -1,11 +1,31 @@
 #pragma once
 
-#include "evaluator.h"
+/* test_helpers.h -- helpers for the hand-evaluator tests */
+
+#include <array>
 #include <iostream>
 #include <string>
 
+#include "common/hand_eval.h"
+
+using equity::Card;
+
+enum result_t {
+    HERO_WIN,
+    VILLAIN_WIN,
+    TIE
+};
+
 // Number of failed print_test checks; tests return non-zero if any failed.
 inline int g_test_failures = 0;
+
+inline result_t evaluate_hands(Card hero1, Card hero2, Card villain1, Card villain2,
+                               const std::array<Card, 5>& community) {
+    int r = equity::hand_eval::compare(hero1, hero2, villain1, villain2, community.data());
+    if (r > 0) return HERO_WIN;
+    if (r < 0) return VILLAIN_WIN;
+    return TIE;
+}
 
 inline const char* rank_to_string(int rank) {
     const char* ranks[] = {

@@ -1,6 +1,5 @@
 /* test_eval_fullhouse.cpp - test evaluator functionality (FULL HOUSE) */
 
-#include "evaluator.h"
 #include "test_helpers.h"
 
 int main() {

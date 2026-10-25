@@ -1,6 +1,5 @@
 /* test_eval_basic.cpp - test basic evaluator functionality */
 
-#include "evaluator.h"
 #include "test_helpers.h"
 
 int main() {

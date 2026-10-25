@@ -4,8 +4,10 @@
  * hand_eval.h -- allocation-free 7-card hand evaluator shared by CPU and GPU.
  *
  * Header-only and marked HD (__host__ __device__ under nvcc), so the exact same
- * code runs in the CPU engines and inside the CUDA kernel. No std::vector, no
- * <algorithm>, no exceptions: just fixed arrays and bitmasks.
+ * code runs in the CPU backends and inside the CUDA kernels. No std::vector, no
+ * <algorithm>, no exceptions: just fixed arrays and bitmasks. This is the
+ * reference evaluator -- a backend-specific evaluator is only worth adding if a
+ * benchmark shows it is faster, and it must still match this one exactly.
  *
  * Card encoding: card = suit * 13 + rank
  *   suit: H=0, D=1, C=2, S=3        rank: 2=0, 3=1, ..., K=11, A=12
@@ -16,11 +18,9 @@
 
 #include <cstdint>
 
-#ifdef __CUDACC__
-#define HD __host__ __device__
-#else
-#define HD
-#endif
+#include "hd.h"
+
+namespace equity {
 
 using Card = std::uint8_t;
 
@@ -178,3 +178,4 @@ HD inline int compare(Card h1, Card h2, Card v1, Card v2, const Card* board) {
 }
 
 } // namespace hand_eval
+} // namespace equity

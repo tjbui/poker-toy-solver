@@ -1,6 +1,5 @@
 /* test_eval_pairs.cpp - test evaluator functionality (PAIRS / TRIPS) */
 
-#include "evaluator.h"
 #include "test_helpers.h"
 
 int main() {

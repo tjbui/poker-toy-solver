@@ -11,7 +11,7 @@ endif()
 
 # ---- Optional CUDA backend ----
 # Built only when a CUDA compiler is found (e.g. on the Lambda GPU box).
-# Without it, get_equity_cuda() throws and everything else still builds.
+# Without it, Backend::Gpu throws and everything else still builds.
 include(CheckLanguage)
 check_language(CUDA)
 if(CMAKE_CUDA_COMPILER)
@@ -24,7 +24,7 @@ if(CMAKE_CUDA_COMPILER)
     set(ENGINE_HAS_CUDA ON)
     message(STATUS "CUDA compiler found: building the GPU backend")
 else()
-    message(STATUS "No CUDA compiler: CPU-only build (get_equity_cuda will throw)")
+    message(STATUS "No CUDA compiler: CPU-only build (Backend::Gpu will throw)")
 endif()
 
 enable_testing()
