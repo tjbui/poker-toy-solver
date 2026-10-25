@@ -1,0 +1,5 @@
+# Always LF in the working tree, whichever git (Windows or WSL) checks files out.
+* text=auto eol=lf
+
+*.pdf binary
+*.png binary
