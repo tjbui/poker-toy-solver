@@ -10,10 +10,10 @@ engine/include/equity/equity.h   public API: compute_equity(request, options), B
 engine/src/common/               shared: workload.* (parse/ranges/matchups), hand_eval.h, combinatorics.h (HD)
 engine/src/cpu/                  enumerate.cpp (core: cpu_count_matchup = one exact matchup, all runouts;
                                  cpu_count_single = loop over matchups), multithread.cpp (slices)
-engine/src/gpu/                  runouts.cuh (runout number -> cards), matchup.cuh (core: one matchup),
-                                 reduce.cuh (warp/block sum + atomicAdd), kernels.cuh (grid-stride /
-                                 chunked scheduling), cuda_utils.cuh (CUDA_CHECK + RAII),
-                                 gpu_backend.cu (host: upload, launch, timing), gpu_stub.cpp (no-CUDA builds)
+engine/src/gpu/                  runouts.cuh (runout number -> cards), matchup.cuh (core: one runout),
+                                 reduce.cuh (warp/block sum + atomicAdd), kernels.cuh (grid-stride loop),
+                                 cuda_utils.cuh (CUDA_CHECK + RAII), gpu_backend.cu (host: upload,
+                                 launch, timing), gpu_stub.cpp (no-CUDA builds)
 engine/src/equity.cpp            dispatch: prepare the Workload once, pick a backend, build the result
 ```
 
@@ -21,8 +21,7 @@ engine/src/equity.cpp            dispatch: prepare the Workload once, pick a bac
   The dispatcher owns timing, percentages, and the `wins + losses + ties == total` check.
 - The **math is shared** (`hand_eval.h`, `combinatorics.h`, all `HD`); only the
   orchestration differs (threads vs grid, host vectors vs device buffers, summing
-  partials vs warp shuffle + atomics). A backend-specific evaluator is only worth adding
-  if a benchmark proves it faster, and it must still match `hand_eval.h` exactly.
+  partials vs warp shuffle + atomics).
 - `Backend::Auto`: GPU if the job has at least `autoGpuMinRunouts` (default 200k)
   runouts **and** a GPU is present; otherwise `CpuMulti`. The size is checked first,
   so small jobs never touch the CUDA runtime.
@@ -49,109 +48,65 @@ engine/src/equity.cpp            dispatch: prepare the Workload once, pick a bac
   enumeration ~5x faster (iterative 1185 → 233 ms, multithread 390 → 67 ms on an
   8-core laptop, same harness).
 
-## 2. The kernels (`engine/src/gpu/`)
+## 2. The GPU code (`engine/src/gpu/`)
 
-The GPU code is split by layer, like the CPU side (core function + wrappers):
-`runouts.cuh` enumerates, `matchup.cuh` is the core (`play_runout` = one runout,
-`count_matchup` = a slice of one matchup, the twin of `cpu_count_matchup`), `reduce.cuh`
-sums, `kernels.cuh` only decides which indices each thread does, and `gpu_backend.cu` is
-the host side. The `.cuh` files are header-only `__device__` code included into the one
-`.cu`: calling device functions across `.cu` files needs relocatable device code (`-rdc`),
-which blocks inlining. (The `__constant__` tables live in `runouts.cuh`, so only one `.cu`
-may include it, or each would get its own copy.)
+Split by layer, like the CPU side (core function + wrappers). The `.cuh` files are
+header-only `__device__` code included into the one `.cu`: calling device functions
+across `.cu` files needs relocatable device code (`-rdc`), which blocks inlining.
 
-Same work as the CPU, every (matchup, runout) pair, numbered as one list: index `i` in
-`[0, total)`, `total = matchups × R` (R = runouts per matchup), `m = i / R`, `runout = i % R`;
-runout `r` = the r-th lexicographic k-subset of the cards not used by matchup `m`'s hole
-cards or the known board. All matchups go in ONE kernel launch.
-
-- **Grid-stride:** thread `t` does `i = t, t + stride, t + 2*stride, ...`. Neighbouring
-  threads take neighbouring indices (same matchup → the matchup load is a broadcast),
-  but a thread's consecutive indices are far apart, so it **unranks every index**.
-  The unrank walks the free cards with `__ffsll` + `avail &= avail - 1` and writes cards
-  straight into the board — no deck array.
-- **Chunked:** thread `t` owns `[t*chunk, (t+1)*chunk)`: build that matchup's deck once,
-  unrank once, then step with `next_combination` (what the CPU core `cpu_count_matchup` does).
-- `C(n,k)` lookup table (53×6) and the known board live in `__constant__` memory.
-- Per-thread local counters; at the end **warp shuffle** (`__shfl_down_sync`) →
-  shared memory → **one `atomicAdd` per counter per block**.
-- Launch config from `cudaOccupancyMaxPotentialBlockSize` (block size that maximizes
-  occupancy + the grid size that fills every SM once), capped by the amount of work.
-- RAII wrappers (`DeviceBuffer`, `PinnedBuffer`, `CudaEvent`, `CudaStream`) so nothing
-  leaks when a `CUDA_CHECK` throws. The dispatcher asserts `wins + losses + ties == total`.
+- **`gpu_backend.cu` (host):** upload the C(n,k) table + known board to `__constant__`
+  memory, `cudaMalloc` the matchups + 3 counters, upload the matchups, pick the launch
+  config, launch, copy the 3 counters back. All queued on one stream; the final
+  `cudaStreamSynchronize` is the only CPU wait. RAII wrappers (`DeviceBuffer`,
+  `CudaEvent`, `CudaStream`) free everything even if a `CUDA_CHECK` throws.
+- **`kernels.cuh` (schedule):** the work is every (matchup, runout) pair numbered
+  `i = m * R + runout` in `[0, total)`; all matchups go in ONE launch. Grid-stride loop:
+  thread `t` does `i = t, t + stride, t + 2*stride, ...` (stride = threads in the grid).
+- **`matchup.cuh` (core):** `play_runout` = unrank runout `r` into the board, then
+  `hand_eval::compare`. `DeviceCounts` = the thread's private counters (registers).
+- **`runouts.cuh` (enumerate):** `unrank_cards` walks the unseen cards as a 64-bit mask
+  with `__ffsll` + `avail &= avail - 1` and writes cards straight into the board — no
+  deck array. `c_choose` (53×6) and `c_known` live in `__constant__` memory.
+- **`reduce.cuh` (sum):** warp shuffle (`__shfl_down_sync`) → shared memory → one
+  `atomicAdd` per counter per block.
+- Launch config from `cudaOccupancyMaxPotentialBlockSize` (144 blocks × 768 threads on
+  the A10), capped by the amount of work.
 
 ## 3. Benchmarks (A10 vs 30-vCPU host, warm, medians)
 
 `./build/equity_bench`. "total" = whole call (parse, matchup build, upload, kernel,
 copy back); "kernel" = cudaEvent-timed kernel only. All backends return identical results.
 
-| case | runouts | CPU 1 thread | CPU 30 threads | GPU grid-stride | GPU chunked |
-|---|---:|---:|---:|---:|---:|
-| preflop AsAh vs KsKd | 1.7M | 146 ms | 5.9 ms | **0.40 ms** (kernel 0.31) | 0.46 ms (0.38) |
-| preflop AA,KK,QQ,AKs vs JJ,TT,AQs,KQs | 658M | — | 2088 ms | **137 ms** | 211 ms |
-| flop, full range vs full range | 1.26B | — | 4102 ms | **257 ms** | 258 ms |
-| river, full range vs full range | 1.07M | — | 10.0 ms | 2.8 ms (kernel 0.17) | 3.1 ms (0.32) |
-
-(River numbers are after the backend restructure: matchup building now reserves its
-vector up front, which cut the host-side prep from ~7 ms to ~2.5 ms.)
+| case | runouts | CPU 1 thread | CPU 30 threads | GPU |
+|---|---:|---:|---:|---:|
+| preflop AsAh vs KsKd | 1.7M | 146 ms | 5.9 ms | **0.43 ms** (kernel 0.31) |
+| preflop AA,KK,QQ,AKs vs JJ,TT,AQs,KQs | 658M | — | 2054 ms | **137 ms** |
+| flop, full range vs full range | 1.26B | — | 3907 ms | **254 ms** |
+| river, full range vs full range | 1.07M | — | 10.2 ms | 2.8 ms (kernel 0.17) |
 
 - Throughput: GPU ≈ **4.9 G runouts/s** (≈ 9.8 G hand evaluations/s) vs ≈ 310 M/s for
   30 CPU threads and 11.7 M/s for one → **~16x** the whole CPU, **~420x** one core.
-- The first CUDA call in a process pays ~100+ ms of context creation; the bench does a
-  warm-up run so that's excluded (a one-shot `equity_cli --gpu` sees it).
+- **Amdahl on the river case:** kernel 0.17 ms, total ~2.8 ms — most of the rest is the
+  host building ~1M matchups (`prepare_workload`). A faster kernel can't help that case.
 
-## 4. Design decisions the numbers settled
+## 4. Why these choices (measured during development, alternatives removed)
 
-**Grid-stride vs chunked → grid-stride is the default.** Chunked does far fewer
-unranks, yet it's equal or slower (1.5x slower on the 658M case). Why:
-- `Card deck[48]` indexed by `runout_positions[j]` is dynamically indexed → lives in
-  **local memory** (off-chip, cached), not registers. `cuobjdump --dump-resource-usage`
-  shows it as the per-thread stack frame: chunked 112 B vs grid-stride 48 B (grid-stride's
-  is the evaluator's `counts[13]` + the board).
-- More registers per thread (64 vs 40) → occupancy API picks 72 × 1024 threads vs
-  144 × 768 for grid-stride → fewer resident warps to hide latency.
-- `next_combination` has data-dependent loop lengths and every thread in a warp is at a
-  different point in its sequence → **branch divergence**.
-- Grid-stride's per-index unrank is ~ (≤48 loop steps + constant-memory reads), and
-  adjacent threads follow nearly the same path, so it's cheaper than it looks.
+- **Grid-stride over contiguous chunks per thread** (unrank once, then `next_combination`,
+  like the CPU threads). Chunked was equal or slower (213 vs 137 ms on the 658M case):
+  its `Card deck[48]` is runtime-indexed → per-thread stack in **local memory** (112 B vs
+  48 B per thread, from `cuobjdump --dump-resource-usage`); it needed 64 registers vs 40
+  → fewer resident threads (72 × 1024 vs 144 × 768); and threads in a warp hit
+  `next_combination` rollovers / matchup boundaries at different times → divergence.
+- **Block reduction over one `atomicAdd` per thread:** 0.31 vs 0.51 ms kernel on the
+  1.7M case (110k threads contending on 3 addresses); no difference on the big jobs.
+- **Pageable upload, not pinned memory:** pinned made the transfer itself faster (0.18
+  vs 0.28 ms for 4.3 MB) but `cudaMallocHost` + the staging copy cost ~1.4 ms → slower
+  per call. Pinned pays off only with large transfers and a buffer reused across calls.
+- **Copy the matchup into a local** (`const Matchup mu = w.matchups[m];`): passing it by
+  reference into global memory changed the codegen and cost ~10% on one kernel. Check
+  `REG`/`STACK` with `cuobjdump --dump-resource-usage` after refactors.
 
-**Copy the matchup into a local before the hot loop.** Splitting the kernels into
-`.cuh` layers first passed `w.matchups[m]` to `count_matchup` by reference straight from
-global memory. Likely cause: the compiler can't prove the board writes don't alias it, so
-it must keep re-reading it. The codegen changed (56 registers, 144 × 576, flop case 255 → 284 ms).
-`const Matchup mu = w.matchups[m];` (one read, then registers) restored 64 registers and
-the old numbers. Check `REG`/`STACK` with `cuobjdump --dump-resource-usage` after refactors.
-
-**Block reduction vs per-thread atomics.** 110k threads all hitting the same three
-counters is a contention point, but it's a fixed cost at the end of the kernel:
-- preflop 1.7M: 0.31 ms (block reduce) vs 0.51 ms (per-thread atomics) — matters.
-- 658M / 1.26B jobs: identical within noise — the atomics are amortized away.
-
-**Amdahl on the river case.** Kernel 0.17 ms, total ~2.8 ms: most of the rest is the host
-building ~1M matchups (`prepare_workload`). Making the GPU faster can't help that case;
-moving matchup generation to the GPU (or caching it) would.
-
-## 5. Pinned memory experiment
-
-Upload of the matchup list (1.07M matchups × 4 B = 4.3 MB, river and flop full-range cases):
-
-| upload path | transfer (cudaEvent) | extra host prep | call total |
-|---|---:|---:|---:|
-| pageable `cudaMemcpyAsync` | 0.28 ms | — | 3.1 ms |
-| pinned (`cudaMallocHost` + memcpy staging, async on a stream) | 0.18 ms | 1.4 ms | 4.8 ms |
-
-- The **transfer** is ~1.75x faster pinned: the GPU DMAs straight from page-locked
-  memory instead of the driver bouncing pageable memory through its own pinned buffer.
-- But allocating pinned memory is expensive (it page-locks with the OS) and the extra
-  staging copy costs more than the transfer saved → **net slower** per call here.
-- It's a tiny fraction of the work anyway: 0.3 ms of upload vs 250 ms of kernel on the
-  flop case, and nothing at all is uploaded for exact-vs-exact (24 bytes come back).
-- Pinned memory pays off when transfers are large relative to compute **and** the pinned
-  buffer is allocated once and reused (or data is produced directly into it), ideally
-  with async copies on streams overlapping kernels (e.g. batching many queries).
-  Kept as an option (`GpuOptions::pinnedUpload`) for that use, off by default.
-
-## 6. Build notes
+## 5. Build notes
 
 - CUDA is optional: root `CMakeLists.txt` uses `check_language(CUDA)`; with nvcc it
   builds `gpu/gpu_backend.cu` + `test_equity_gpu`, without it `gpu/gpu_stub.cpp`
@@ -165,5 +120,4 @@ Upload of the matchup list (1.07M matchups × 4 B = 4.3 MB, river and flop full-
 - Generate matchups on the GPU (fixes the river-case Amdahl bound).
 - Reduce local memory in the evaluator (`counts[13]` is dynamically indexed).
 - Lookup-table evaluator (fewer branches → less divergence).
-- Batch many requests with streams + reused pinned buffers.
 - CFR on the GPU (needs MCCFR-style sampled traversals; tree CFR doesn't map cleanly).

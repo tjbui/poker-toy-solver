@@ -10,7 +10,7 @@ bool gpu_device_available() {
     return false;
 }
 
-EquityCounts gpu_count(const Workload&, const GpuOptions&, GpuStats*) {
+EquityCounts gpu_count(const Workload&, GpuStats*) {
     throw std::runtime_error(
         "GPU backend unavailable: this build has no CUDA support "
         "(no CUDA compiler was found when CMake configured the project)");

@@ -14,8 +14,8 @@ namespace equity {
 // True if built with CUDA and at least one CUDA device is present (cached).
 bool gpu_device_available();
 
-// Count results for the whole work space on the GPU.
+// Count results for the whole work space on the GPU; fills `stats` if non-null.
 // Throws std::runtime_error on any CUDA error, or if built without CUDA.
-EquityCounts gpu_count(const Workload& w, const GpuOptions& options, GpuStats* stats);
+EquityCounts gpu_count(const Workload& w, GpuStats* stats);
 
 } // namespace equity

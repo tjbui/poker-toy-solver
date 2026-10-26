@@ -37,7 +37,7 @@ EquityCounts run_backend(Backend backend, const Workload& w, const EquityOptions
                     "GPU backend requested but unavailable "
                     "(engine built without CUDA, or no CUDA device found)");
             }
-            return gpu_count(w, options.gpu, options.gpuStats);
+            return gpu_count(w, options.gpuStats);
         case Backend::Auto:
             break;
     }

@@ -24,20 +24,11 @@ __device__ inline ull warp_sum(ull v) {
 }
 
 /*
- * Add this thread's counts into out[0..2] = {hero_wins, villain_wins, ties}.
- * BlockReduce: warp shuffle -> shared memory -> one atomicAdd per counter per block.
- * Otherwise:   one atomicAdd per counter per thread (baseline for the benchmark).
+ * Add this thread's counts into out[0..2] = {hero_wins, villain_wins, ties}:
+ * warp shuffle -> shared memory -> one atomicAdd per counter per block.
  * Every thread of the block must call this (it contains __syncthreads()).
  */
-template <bool BlockReduce>
 __device__ inline void add_counts(DeviceCounts c, ull* out) {
-    if (!BlockReduce) {
-        atomicAdd(&out[0], c.hero_wins);
-        atomicAdd(&out[1], c.villain_wins);
-        atomicAdd(&out[2], c.ties);
-        return;
-    }
-
     __shared__ ull partial[3][32];               // one slot per warp (max 1024 threads = 32 warps)
     const int lane = threadIdx.x & 31;           // my index within my warp
     const int warp = threadIdx.x >> 5;           // my warp within the block

@@ -5,14 +5,10 @@
  *
  * Same numbering as the CPU (combinatorics.h): runout r of a matchup is the
  * r-th lexicographic k-subset of the cards that matchup and the known board
- * leave unseen. Two ways to turn r into cards:
- *   unrank_cards()     -> straight into the board, from a 64-bit "unseen" mask
- *                         (grid-stride: every index is unranked from scratch)
- *   unrank_positions() -> positions into a deck[] array, then next_combination()
- *                         steps to the following runout (chunked, like the CPU)
+ * leave unseen. unrank_cards() turns r straight into board cards.
  *
  * The __constant__ tables below get one copy per .cu file that includes this
- * header, so only gpu_backend.cu includes it (directly or via kernels.cuh).
+ * header, so only gpu_backend.cu includes it (via kernels.cuh).
  */
 
 #include <cstdint>
@@ -79,21 +75,6 @@ __device__ inline void unrank_cards(ull r, ull used, int n, int k, Card* out) {
             }
             r -= cnt;
         }
-    }
-}
-
-// r-th lexicographic k-subset of positions {0..n-1}: unrank_combination() with the table.
-__device__ inline void unrank_positions(ull r, int n, int k, int* positions) {
-    int x = 0;
-    for (int i = 0; i < k; i++) {
-        while (true) {
-            ull c = c_choose[n - 1 - x][k - 1 - i];
-            if (r < c) break;
-            r -= c;
-            x++;
-        }
-        positions[i] = x;
-        x++;
     }
 }
 

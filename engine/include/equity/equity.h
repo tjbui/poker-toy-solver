@@ -44,20 +44,8 @@ enum class Backend {
     Gpu         // CUDA; throws if the build has no CUDA or no device is present
 };
 
-enum class GpuKernel {
-    GridStride,  // each thread strides through the work space, unranking every index
-    Chunked      // each thread owns a contiguous chunk: unrank once, then step
-};
-
-struct GpuOptions {
-    GpuKernel kernel = GpuKernel::GridStride;  // measured faster or equal (docs/notes/cuda-notes.md)
-    bool blockReduce = true;                   // warp-shuffle block reduction (false: one atomicAdd per thread)
-    bool pinnedUpload = false;                 // stage the matchup upload through pinned host memory
-};
-
 // Optional timing breakdown, filled in when the GPU backend runs.
 struct GpuStats {
-    double pinnedPrepMs = 0.0;  // pinnedUpload only: cudaMallocHost + staging copy
     double uploadMs = 0.0;      // host -> device copy of the matchup list
     double kernelMs = 0.0;      // kernel only
     int blocks = 0;
@@ -68,7 +56,6 @@ struct EquityOptions {
     Backend backend = Backend::Auto;
     unsigned cpuThreads = 0;                   // CpuMulti: 0 = std::thread::hardware_concurrency()
     std::uint64_t autoGpuMinRunouts = 200000;  // Auto: smaller jobs stay on the CPU (GPU launch/setup overhead)
-    GpuOptions gpu;
     GpuStats* gpuStats = nullptr;              // if set, filled in when the GPU runs
 };
 

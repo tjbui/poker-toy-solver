@@ -51,13 +51,9 @@ static EquityResult cpu(const EquityRequest& req) {
     return compute_equity(req, o);
 }
 
-static EquityResult gpu(const EquityRequest& req, GpuKernel kernel,
-                        bool block_reduce = true, bool pinned = false) {
+static EquityResult gpu(const EquityRequest& req) {
     EquityOptions o;
     o.backend = Backend::Gpu;
-    o.gpu.kernel = kernel;
-    o.gpu.blockReduce = block_reduce;
-    o.gpu.pinnedUpload = pinned;
     return compute_equity(req, o);
 }
 
@@ -106,26 +102,8 @@ int main() {
         cases.push_back({"range vs range preflop", r});
     }
 
-    const GpuKernel kernels[] = {GpuKernel::GridStride, GpuKernel::Chunked};
-    const char* kernel_names[] = {"grid-stride", "chunked"};
-
     for (const Case& c : cases) {
-        EquityResult ref = cpu(c.req);
-        for (int k = 0; k < 2; k++) {
-            check(same(ref, gpu(c.req, kernels[k])), c.name + " [" + kernel_names[k] + "]");
-        }
-    }
-
-    // Other code paths: per-thread atomics instead of block reduction, pinned upload.
-    {
-        const EquityRequest& r = cases[5].req;
-        EquityResult ref = cpu(r);
-        for (int k = 0; k < 2; k++) {
-            check(same(ref, gpu(r, kernels[k], false)),
-                  std::string("per-thread atomics [") + kernel_names[k] + "]");
-            check(same(ref, gpu(r, kernels[k], true, true)),
-                  std::string("pinned upload [") + kernel_names[k] + "]");
-        }
+        check(same(cpu(c.req), gpu(c.req)), c.name);
     }
 
     // Auto sends a large job to the GPU (and still matches the CPU).

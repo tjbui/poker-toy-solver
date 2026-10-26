@@ -27,7 +27,6 @@ struct Timing {
     double total_ms = 0.0;
     double kernel_ms = 0.0;
     double upload_ms = 0.0;
-    double pinned_prep_ms = 0.0;
     int blocks = 0;
     int threads = 0;
     EquityResult result;
@@ -44,7 +43,7 @@ using Runner = std::function<EquityResult(const EquityRequest&, GpuStats*)>;
 Timing measure(const Runner& fn, const EquityRequest& req, int reps) {
     GpuStats st;
     fn(req, &st);                                   // warm-up
-    std::vector<double> total, kernel, upload, prep;
+    std::vector<double> total, kernel, upload;
     Timing t;
     for (int i = 0; i < reps; i++) {
         st = GpuStats{};
@@ -52,12 +51,10 @@ Timing measure(const Runner& fn, const EquityRequest& req, int reps) {
         total.push_back(t.result.runtimeMs);
         kernel.push_back(st.kernelMs);
         upload.push_back(st.uploadMs);
-        prep.push_back(st.pinnedPrepMs);
     }
     t.total_ms = median(total);
     t.kernel_ms = median(kernel);
     t.upload_ms = median(upload);
-    t.pinned_prep_ms = median(prep);
     t.blocks = st.blocks;
     t.threads = st.threadsPerBlock;
     return t;
@@ -71,13 +68,10 @@ Runner cpu(Backend backend) {
     };
 }
 
-Runner gpu(GpuKernel kernel, bool block_reduce = true, bool pinned = false) {
+Runner gpu() {
     return [=](const EquityRequest& r, GpuStats* st) {
         EquityOptions opt;
         opt.backend = Backend::Gpu;
-        opt.gpu.kernel = kernel;
-        opt.gpu.blockReduce = block_reduce;
-        opt.gpu.pinnedUpload = pinned;
         opt.gpuStats = st;
         return compute_equity(r, opt);
     };
@@ -146,7 +140,6 @@ void run_case(const std::string& title, const EquityRequest& req, const std::vec
                     row.name.c_str(), static_cast<unsigned long long>(t.result.evaluatedRunouts),
                     t.total_ms, kernel, upload, mrps, speed);
         if (row.gpu) std::printf("   [%d x %d]", t.blocks, t.threads);
-        if (t.pinned_prep_ms > 0.0) std::printf("   pinned prep %.3f ms", t.pinned_prep_ms);
         std::printf("   hero %.4f%%\n", t.result.heroWinPct);
     }
 }
@@ -162,10 +155,7 @@ int main() {
         run_case("preflop exact: AsAh vs KsKd", r, {
             {"cpu single", cpu(Backend::CpuSingle), 3, false},
             {"cpu multithread", cpu(Backend::CpuMulti), 5, false},
-            {"gpu grid-stride", gpu(GpuKernel::GridStride), 5, true},
-            {"gpu chunked", gpu(GpuKernel::Chunked), 5, true},
-            {"gpu grid-stride (atomics)", gpu(GpuKernel::GridStride, false), 5, true},
-            {"gpu chunked (atomics)", gpu(GpuKernel::Chunked, false), 5, true},
+            {"gpu", gpu(), 5, true},
         });
     }
 
@@ -176,27 +166,21 @@ int main() {
         r.villain = range_hand({"JJ", "TT", "AQs", "KQs"});
         run_case("preflop range vs range: AA,KK,QQ,AKs vs JJ,TT,AQs,KQs", r, {
             {"cpu multithread", cpu(Backend::CpuMulti), 3, false},
-            {"gpu grid-stride", gpu(GpuKernel::GridStride), 5, true},
-            {"gpu chunked", gpu(GpuKernel::Chunked), 5, true},
-            {"gpu grid-stride (atomics)", gpu(GpuKernel::GridStride, false), 5, true},
-            {"gpu chunked (atomics)", gpu(GpuKernel::Chunked, false), 5, true},
+            {"gpu", gpu(), 5, true},
         });
     }
 
     // 3) Full range vs full range on a known river: ~1M matchups, 1 board each.
-    //    Little compute per matchup, so the matchup upload is a real fraction --
-    //    this is where pinned memory could show up.
+    //    Little compute per matchup, so host-side prep and the upload dominate.
     {
         EquityRequest r{};
         r.hero = range_hand(all_hands());
         r.villain = range_hand(all_hands());
         r.community = {std::string("2C"), std::string("7D"), std::string("9S"),
                        std::string("TH"), std::string("3H")};
-        run_case("river, full range vs full range (pageable vs pinned upload)", r, {
+        run_case("river, full range vs full range", r, {
             {"cpu multithread", cpu(Backend::CpuMulti), 3, false},
-            {"gpu chunked (pageable)", gpu(GpuKernel::Chunked, true, false), 7, true},
-            {"gpu chunked (pinned)", gpu(GpuKernel::Chunked, true, true), 7, true},
-            {"gpu grid-stride (pageable)", gpu(GpuKernel::GridStride, true, false), 7, true},
+            {"gpu", gpu(), 7, true},
         });
     }
 
@@ -209,9 +193,7 @@ int main() {
                        std::nullopt, std::nullopt};
         run_case("flop, full range vs full range (~1B runouts)", r, {
             {"cpu multithread", cpu(Backend::CpuMulti), 1, false},
-            {"gpu grid-stride", gpu(GpuKernel::GridStride), 3, true},
-            {"gpu chunked", gpu(GpuKernel::Chunked), 3, true},
-            {"gpu chunked (pinned)", gpu(GpuKernel::Chunked, true, true), 3, true},
+            {"gpu", gpu(), 3, true},
         });
     }
 

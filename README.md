@@ -19,7 +19,7 @@ poker-equity/
 │   ├── include/equity/equity.h   # public API (the only header callers use)
 │   ├── src/common/   # shared by all backends: workload prep, HD evaluator, combinatorics
 │   ├── src/cpu/      # single-thread + multithreaded backends
-│   ├── src/gpu/      # CUDA backend: runouts / matchup core / reduce / kernels (.cuh)
+│   ├── src/gpu/      # CUDA backend: runouts / matchup core / reduce / kernel (.cuh)
 │   │                 #   + gpu_backend.cu host side; stub when built without nvcc
 │   ├── src/equity.cpp  # compute_equity(): picks the backend
 │   └── tests/

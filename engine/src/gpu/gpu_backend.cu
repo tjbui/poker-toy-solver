@@ -5,8 +5,6 @@
 #include <cuda_runtime.h>
 
 #include <algorithm>
-#include <chrono>
-#include <cstring>
 
 #include "cuda_utils.cuh"
 #include "kernels.cuh"
@@ -14,9 +12,9 @@
 /*
  * Same work and same results as the CPU backends, split by layer:
  *   runouts.cuh     ENUMERATE  runout number -> cards (constant-memory C(n,k) table)
- *   matchup.cuh     CORE       one matchup: one runout or a slice -> showdown -> counts
+ *   matchup.cuh     CORE       one runout of one matchup -> showdown -> counts
  *   reduce.cuh      SUM        per-thread counts -> warp shuffle -> block -> atomicAdd
- *   kernels.cuh     SCHEDULE   which indices each thread does (grid-stride / chunked)
+ *   kernels.cuh     SCHEDULE   which indices each thread does (grid-stride loop)
  *   cuda_utils.cuh  PLUMBING   CUDA_CHECK + RAII wrappers
  *   this file       HOST       upload, launch config, timing, copy the counts back
  * The showdown itself is the evaluator shared with the CPU (common/hand_eval.h).
@@ -34,31 +32,13 @@ using gpu::ull;
 
 static_assert(sizeof(Matchup) == 4, "Matchup must stay 4 packed bytes for the upload");
 
-// Launch config: the block size / grid size that maximizes occupancy for this kernel.
-template <typename Kernel>
-void pick_launch(Kernel kernel, ull total, int& blocks, int& threads) {
+// Launch config: the block size / grid size that maximizes occupancy for the kernel.
+void pick_launch(ull total, int& blocks, int& threads) {
     int min_grid = 0;
-    CUDA_CHECK(cudaOccupancyMaxPotentialBlockSize(&min_grid, &threads, kernel, 0, 0));
+    CUDA_CHECK(cudaOccupancyMaxPotentialBlockSize(&min_grid, &threads, gpu::kernel_equity, 0, 0));
     ull needed = (total + threads - 1) / threads;   // don't launch more blocks than there is work
     blocks = static_cast<int>(std::min<ull>(static_cast<ull>(min_grid), needed));
     if (blocks < 1) blocks = 1;
-}
-
-template <bool BlockReduce>
-void launch(const GpuOptions& opt, const gpu::Work& w, GpuStats& st, cudaStream_t stream) {
-    int blocks = 0, threads = 0;
-    if (opt.kernel == GpuKernel::GridStride) {
-        pick_launch(gpu::kernel_grid_stride<BlockReduce>, w.total, blocks, threads);
-        gpu::kernel_grid_stride<BlockReduce><<<blocks, threads, 0, stream>>>(w);
-    } else {
-        pick_launch(gpu::kernel_chunked<BlockReduce>, w.total, blocks, threads);
-        const ull nthreads = static_cast<ull>(blocks) * threads;
-        const ull chunk = (w.total + nthreads - 1) / nthreads;
-        gpu::kernel_chunked<BlockReduce><<<blocks, threads, 0, stream>>>(w, chunk);
-    }
-    CUDA_CHECK(cudaGetLastError());
-    st.blocks = blocks;
-    st.threadsPerBlock = threads;
 }
 
 } // namespace
@@ -71,7 +51,7 @@ bool gpu_device_available() {
     return available;
 }
 
-EquityCounts gpu_count(const Workload& wl, const GpuOptions& options, GpuStats* stats) {
+EquityCounts gpu_count(const Workload& wl, GpuStats* stats) {
     GpuStats st;
 
     // Constant memory: C(n, k) table and the known board.
@@ -82,25 +62,12 @@ EquityCounts gpu_count(const Workload& wl, const GpuOptions& options, GpuStats* 
     gpu::DeviceBuffer<ull> d_counts(3);
     CUDA_CHECK(cudaMemsetAsync(d_counts.ptr, 0, 3 * sizeof(ull), stream.s));
 
-    // Upload the matchup list: pageable cudaMemcpy, or staged through pinned memory.
+    // Upload the matchup list (events around it time the copy).
     const std::size_t bytes = wl.matchups.size() * sizeof(Matchup);
     gpu::CudaEvent up_start, up_stop, k_start, k_stop;
-    if (options.pinnedUpload) {
-        auto prep0 = std::chrono::steady_clock::now();
-        gpu::PinnedBuffer<Matchup> staging(wl.matchups.size());
-        std::memcpy(staging.ptr, wl.matchups.data(), bytes);
-        auto prep1 = std::chrono::steady_clock::now();
-        st.pinnedPrepMs = std::chrono::duration<double, std::milli>(prep1 - prep0).count();
-
-        CUDA_CHECK(cudaEventRecord(up_start.e, stream.s));
-        CUDA_CHECK(cudaMemcpyAsync(d_matchups.ptr, staging.ptr, bytes, cudaMemcpyHostToDevice, stream.s));
-        CUDA_CHECK(cudaEventRecord(up_stop.e, stream.s));
-        CUDA_CHECK(cudaStreamSynchronize(stream.s));   // staging must outlive the copy
-    } else {
-        CUDA_CHECK(cudaEventRecord(up_start.e, stream.s));
-        CUDA_CHECK(cudaMemcpyAsync(d_matchups.ptr, wl.matchups.data(), bytes, cudaMemcpyHostToDevice, stream.s));
-        CUDA_CHECK(cudaEventRecord(up_stop.e, stream.s));
-    }
+    CUDA_CHECK(cudaEventRecord(up_start.e, stream.s));
+    CUDA_CHECK(cudaMemcpyAsync(d_matchups.ptr, wl.matchups.data(), bytes, cudaMemcpyHostToDevice, stream.s));
+    CUDA_CHECK(cudaEventRecord(up_stop.e, stream.s));
 
     gpu::Work w{};
     w.matchups = d_matchups.ptr;
@@ -110,14 +77,15 @@ EquityCounts gpu_count(const Workload& wl, const GpuOptions& options, GpuStats* 
     w.k = wl.k;
     w.counts = d_counts.ptr;
 
+    // Launch, queued behind the upload on the same stream.
+    int blocks = 0, threads = 0;
+    pick_launch(w.total, blocks, threads);
     CUDA_CHECK(cudaEventRecord(k_start.e, stream.s));
-    if (options.blockReduce) {
-        launch<true>(options, w, st, stream.s);
-    } else {
-        launch<false>(options, w, st, stream.s);
-    }
+    gpu::kernel_equity<<<blocks, threads, 0, stream.s>>>(w);
+    CUDA_CHECK(cudaGetLastError());               // a launch returns no error code itself
     CUDA_CHECK(cudaEventRecord(k_stop.e, stream.s));
 
+    // Copy the 3 counters back; this sync is the only place the CPU waits.
     ull counts[3] = {0, 0, 0};
     CUDA_CHECK(cudaMemcpyAsync(counts, d_counts.ptr, sizeof(counts), cudaMemcpyDeviceToHost, stream.s));
     CUDA_CHECK(cudaStreamSynchronize(stream.s));
@@ -127,6 +95,8 @@ EquityCounts gpu_count(const Workload& wl, const GpuOptions& options, GpuStats* 
     CUDA_CHECK(cudaEventElapsedTime(&k_ms, k_start.e, k_stop.e));
     st.uploadMs = up_ms;
     st.kernelMs = k_ms;
+    st.blocks = blocks;
+    st.threadsPerBlock = threads;
     if (stats) *stats = st;
 
     EquityCounts result;

@@ -36,16 +36,6 @@ struct DeviceBuffer {
     DeviceBuffer& operator=(const DeviceBuffer&) = delete;
 };
 
-// n elements of T in pinned (page-locked) host memory: the GPU can DMA straight from it.
-template <typename T>
-struct PinnedBuffer {
-    T* ptr = nullptr;
-    explicit PinnedBuffer(std::size_t n) { CUDA_CHECK(cudaMallocHost(&ptr, n * sizeof(T))); }
-    ~PinnedBuffer() { cudaFreeHost(ptr); }
-    PinnedBuffer(const PinnedBuffer&) = delete;
-    PinnedBuffer& operator=(const PinnedBuffer&) = delete;
-};
-
 // A timestamp recorded into a stream (for timing GPU work).
 struct CudaEvent {
     cudaEvent_t e{};
