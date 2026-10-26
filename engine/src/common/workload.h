@@ -25,10 +25,11 @@ struct Matchup {
 };
 
 /*
- * The flat work space [0, total) over (matchup x board): index i is board
- * (i % boards) of matchup (i / boards), where board b is the b-th
- * lexicographic k-subset of the cards not used by that matchup's holes or the
- * known board. Every backend enumerates exactly this set.
+ * A runout is one way to deal the missing community cards; every matchup has
+ * the same number of them (runoutsPerMatchup). The total work is every
+ * (matchup, runout) pair. Backends that split the work numbers it as one list,
+ * index = matchup * runoutsPerMatchup + runout, where runout r is the r-th
+ * lexicographic k-subset of the cards not used by that matchup or the known board.
  */
 struct Workload {
     std::vector<Matchup> matchups;
@@ -36,8 +37,8 @@ struct Workload {
     int knownCount = 0;
     int k = 0;                    // unknown board cards to draw: 5 - knownCount
     int deckSize = 0;             // cards left per matchup: 48 - knownCount
-    std::uint64_t boards = 0;     // boards per matchup: C(deckSize, k)
-    std::uint64_t total = 0;      // matchups.size() * boards
+    std::uint64_t runoutsPerMatchup = 0;  // C(deckSize, k), the same for every matchup
+    std::uint64_t total = 0;              // matchups.size() * runoutsPerMatchup
 };
 
 // What a backend returns: raw counts over the whole work space.

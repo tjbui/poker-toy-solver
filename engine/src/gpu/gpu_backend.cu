@@ -15,9 +15,11 @@
 #include "common/hand_eval.h"
 
 /*
- * Same work space as the CPU backends (see workload.h): the flat index range
- * [0, total) over (matchup x board). The GPU enumerates the same boards with
- * the same evaluator, so the counts match the CPU exactly.
+ * Same work as the CPU backends (see workload.h): every (matchup, runout) pair,
+ * numbered index = matchup * runouts_per_matchup + runout. Unlike the CPU, the
+ * GPU covers ALL matchups in one kernel launch (one launch per matchup would
+ * mean millions of launches for wide ranges). Same runouts, same evaluator, so
+ * the counts match the CPU exactly.
  */
 
 #define CUDA_CHECK(call)                                                       \
@@ -49,8 +51,8 @@ __constant__ Card c_known[5];
 // Kernel arguments (passed by value).
 struct Work {
     const Matchup* matchups;
-    ull total;        // matchups * boards
-    ull boards;       // boards per matchup
+    ull total;                // matchups * runouts_per_matchup
+    ull runouts_per_matchup;
     int known_count;  // known board cards
     int k;            // unknown board cards to draw
     ull* counts;      // [hero_wins, villain_wins, ties]
@@ -193,7 +195,7 @@ __device__ inline void add_counts(ull hw, ull vw, ull ties, ull* out) {
 /*
  * Grid-stride: thread t handles indices t, t + stride, t + 2*stride, ...
  * Neighbouring threads work on neighbouring indices (same matchup, adjacent
- * boards), but consecutive iterations of one thread are far apart, so every
+ * runouts), but consecutive iterations of one thread are far apart, so every
  * index is unranked from scratch.
  */
 template <bool BlockReduce>
@@ -209,10 +211,10 @@ __global__ void kernel_grid_stride(Work w) {
     ull hw = 0, vw = 0, ties = 0;
     const ull stride = static_cast<ull>(gridDim.x) * blockDim.x;
     for (ull i = static_cast<ull>(blockIdx.x) * blockDim.x + threadIdx.x; i < w.total; i += stride) {
-        const ull m = i / w.boards;
-        const ull b = i - m * w.boards;
+        const ull m = i / w.runouts_per_matchup;              // which matchup
+        const ull runout = i - m * w.runouts_per_matchup;     // which runout of it
         const Matchup mu = w.matchups[m];
-        unrank_cards(b, known_mask | matchup_mask(mu), n, w.k, board + w.known_count);
+        unrank_cards(runout, known_mask | matchup_mask(mu), n, w.k, board + w.known_count);
 
         const int r = hand_eval::compare(mu.h1, mu.h2, mu.v1, mu.v2, board);
         hw += (r > 0);
@@ -244,9 +246,10 @@ __global__ void kernel_chunked(Work w, ull chunk) {
 
     ull i = lo;
     while (i < hi) {
-        const ull m = i / w.boards;
-        const ull b0 = i - m * w.boards;
-        const ull b_end = (w.boards < b0 + (hi - i)) ? w.boards : b0 + (hi - i);
+        const ull R = w.runouts_per_matchup;
+        const ull m = i / R;                                   // which matchup
+        const ull runout_from = i - m * R;                     // first runout of it in my chunk
+        const ull runout_to = (R < runout_from + (hi - i)) ? R : runout_from + (hi - i);
         const Matchup mu = w.matchups[m];
 
         Card deck[48];
@@ -257,17 +260,17 @@ __global__ void kernel_chunked(Work w, ull chunk) {
             avail &= avail - 1;
         }
 
-        int combo[5];
-        unrank_positions(b0, deck_n, w.k, combo);
-        for (ull b = b0; b < b_end; b++) {
-            for (int j = 0; j < w.k; j++) board[w.known_count + j] = deck[combo[j]];
+        int runout_positions[5];
+        unrank_positions(runout_from, deck_n, w.k, runout_positions);
+        for (ull runout = runout_from; runout < runout_to; runout++) {
+            for (int j = 0; j < w.k; j++) board[w.known_count + j] = deck[runout_positions[j]];
             const int r = hand_eval::compare(mu.h1, mu.h2, mu.v1, mu.v2, board);
             hw += (r > 0);
             vw += (r < 0);
             ties += (r == 0);
-            next_combination(combo, deck_n, w.k);
+            next_combination(runout_positions, deck_n, w.k);
         }
-        i = m * w.boards + b_end;
+        i = m * R + runout_to;
     }
 
     add_counts<BlockReduce>(hw, vw, ties, w.counts);   // every thread reaches this
@@ -349,7 +352,7 @@ EquityCounts gpu_count(const Workload& wl, const GpuOptions& options, GpuStats* 
     Work w{};
     w.matchups = d_matchups.ptr;
     w.total = wl.total;
-    w.boards = wl.boards;
+    w.runouts_per_matchup = wl.runoutsPerMatchup;
     w.known_count = wl.knownCount;
     w.k = wl.k;
     w.counts = d_counts.ptr;

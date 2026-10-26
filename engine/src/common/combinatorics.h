@@ -3,11 +3,11 @@
 /*
  * combinatorics.h -- n choose k and lexicographic k-combinations, HD.
  *
- * The work space is indexed by "board number b of matchup m", where board b
- * is the b-th k-subset (lexicographic order) of the cards left in the deck.
- * unrank_combination() turns a board number into its subset (the combinatorial
- * number system), so any thread can jump straight to the start of its slice;
- * next_combination() steps to the following board.
+ * A matchup's runouts are numbered 0, 1, 2, ...: runout r is the r-th k-subset
+ * (lexicographic order) of the cards left in the deck. unrank_combination()
+ * turns a runout number into its subset (the combinatorial number system), so
+ * any thread can jump straight to the start of its share; next_combination()
+ * steps to the following runout.
  *
  * The GPU kernels use a __constant__ lookup table instead of n_choose_k() for
  * unranking (a GPU-specific speedup); the table itself is filled from n_choose_k().

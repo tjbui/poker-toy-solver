@@ -200,8 +200,8 @@ Workload prepare_workload(const EquityRequest& request) {
 
     w.k = 5 - w.knownCount;
     w.deckSize = 48 - w.knownCount;
-    w.boards = n_choose_k(w.deckSize, w.k);
-    w.total = static_cast<std::uint64_t>(w.matchups.size()) * w.boards;
+    w.runoutsPerMatchup = n_choose_k(w.deckSize, w.k);
+    w.total = static_cast<std::uint64_t>(w.matchups.size()) * w.runoutsPerMatchup;
     return w;
 }
 

@@ -8,7 +8,8 @@ Hardware: NVIDIA A10 (sm_86, Lambda Cloud) vs the box's 30-vCPU host. CUDA 12.8.
 ```
 engine/include/equity/equity.h   public API: compute_equity(request, options), Backend, gpu_available()
 engine/src/common/               shared: workload.* (parse/ranges/matchups), hand_eval.h, combinatorics.h (HD)
-engine/src/cpu/                  enumerate.cpp (cpu_count_range), multithread.cpp
+engine/src/cpu/                  enumerate.cpp (core: cpu_count_matchup = one exact matchup, all runouts;
+                                 cpu_count_single = loop over matchups), multithread.cpp (slices)
 engine/src/gpu/                  gpu_backend.cu (kernels), gpu_stub.cpp (no-CUDA builds)
 engine/src/equity.cpp            dispatch: prepare the Workload once, pick a backend, build the result
 ```
@@ -47,9 +48,10 @@ engine/src/equity.cpp            dispatch: prepare the Workload once, pick a bac
 
 ## 2. The kernels (`engine/src/gpu/gpu_backend.cu`)
 
-Same work space as the CPU: flat index `i` in `[0, total)`, `total = matchups × boards`,
-`m = i / boards`, `b = i % boards`; board `b` = the b-th lexicographic k-subset of the
-cards not used by matchup `m`'s hole cards or the known board.
+Same work as the CPU, every (matchup, runout) pair, numbered as one list: index `i` in
+`[0, total)`, `total = matchups × R` (R = runouts per matchup), `m = i / R`, `runout = i % R`;
+runout `r` = the r-th lexicographic k-subset of the cards not used by matchup `m`'s hole
+cards or the known board. All matchups go in ONE kernel launch.
 
 - **Grid-stride:** thread `t` does `i = t, t + stride, t + 2*stride, ...`. Neighbouring
   threads take neighbouring indices (same matchup → the matchup load is a broadcast),
@@ -57,7 +59,7 @@ cards not used by matchup `m`'s hole cards or the known board.
   The unrank walks the free cards with `__ffsll` + `avail &= avail - 1` and writes cards
   straight into the board — no deck array.
 - **Chunked:** thread `t` owns `[t*chunk, (t+1)*chunk)`: build that matchup's deck once,
-  unrank once, then step with `next_combination` (exactly what CPU `cpu_count_range` does).
+  unrank once, then step with `next_combination` (what the CPU core `cpu_count_matchup` does).
 - `C(n,k)` lookup table (53×6) and the known board live in `__constant__` memory.
 - Per-thread local counters; at the end **warp shuffle** (`__shfl_down_sync`) →
   shared memory → **one `atomicAdd` per counter per block**.
