@@ -2,7 +2,8 @@
 #   include/equity/  public API (the only headers callers see)
 #   src/common/      shared by every backend: workload prep, HD evaluator + combinatorics
 #   src/cpu/         single-thread + multithreaded backends
-#   src/gpu/         CUDA backend (or a stub when there is no CUDA compiler)
+#   src/gpu/         CUDA backend: gpu_backend.cu + header-only .cuh layers (or a stub
+#                    when there is no CUDA compiler)
 #   src/equity.cpp   compute_equity(): backend dispatch
 
 find_package(Threads REQUIRED)

@@ -10,7 +10,10 @@ engine/include/equity/equity.h   public API: compute_equity(request, options), B
 engine/src/common/               shared: workload.* (parse/ranges/matchups), hand_eval.h, combinatorics.h (HD)
 engine/src/cpu/                  enumerate.cpp (core: cpu_count_matchup = one exact matchup, all runouts;
                                  cpu_count_single = loop over matchups), multithread.cpp (slices)
-engine/src/gpu/                  gpu_backend.cu (kernels), gpu_stub.cpp (no-CUDA builds)
+engine/src/gpu/                  runouts.cuh (runout number -> cards), matchup.cuh (core: one matchup),
+                                 reduce.cuh (warp/block sum + atomicAdd), kernels.cuh (grid-stride /
+                                 chunked scheduling), cuda_utils.cuh (CUDA_CHECK + RAII),
+                                 gpu_backend.cu (host: upload, launch, timing), gpu_stub.cpp (no-CUDA builds)
 engine/src/equity.cpp            dispatch: prepare the Workload once, pick a backend, build the result
 ```
 
@@ -46,7 +49,16 @@ engine/src/equity.cpp            dispatch: prepare the Workload once, pick a bac
   enumeration ~5x faster (iterative 1185 → 233 ms, multithread 390 → 67 ms on an
   8-core laptop, same harness).
 
-## 2. The kernels (`engine/src/gpu/gpu_backend.cu`)
+## 2. The kernels (`engine/src/gpu/`)
+
+The GPU code is split by layer, like the CPU side (core function + wrappers):
+`runouts.cuh` enumerates, `matchup.cuh` is the core (`play_runout` = one runout,
+`count_matchup` = a slice of one matchup, the twin of `cpu_count_matchup`), `reduce.cuh`
+sums, `kernels.cuh` only decides which indices each thread does, and `gpu_backend.cu` is
+the host side. The `.cuh` files are header-only `__device__` code included into the one
+`.cu`: calling device functions across `.cu` files needs relocatable device code (`-rdc`),
+which blocks inlining. (The `__constant__` tables live in `runouts.cuh`, so only one `.cu`
+may include it, or each would get its own copy.)
 
 Same work as the CPU, every (matchup, runout) pair, numbered as one list: index `i` in
 `[0, total)`, `total = matchups × R` (R = runouts per matchup), `m = i / R`, `runout = i % R`;
@@ -92,14 +104,23 @@ vector up front, which cut the host-side prep from ~7 ms to ~2.5 ms.)
 
 **Grid-stride vs chunked → grid-stride is the default.** Chunked does far fewer
 unranks, yet it's equal or slower (1.5x slower on the 658M case). Why:
-- `Card deck[48]` indexed by `combo[j]` is dynamically indexed → lives in **local
-  memory** (off-chip, cached), not registers.
-- More registers per thread → occupancy API picks 72 × 1024 threads vs 144 × 768 for
-  grid-stride → fewer resident warps to hide latency.
+- `Card deck[48]` indexed by `runout_positions[j]` is dynamically indexed → lives in
+  **local memory** (off-chip, cached), not registers. `cuobjdump --dump-resource-usage`
+  shows it as the per-thread stack frame: chunked 112 B vs grid-stride 48 B (grid-stride's
+  is the evaluator's `counts[13]` + the board).
+- More registers per thread (64 vs 40) → occupancy API picks 72 × 1024 threads vs
+  144 × 768 for grid-stride → fewer resident warps to hide latency.
 - `next_combination` has data-dependent loop lengths and every thread in a warp is at a
   different point in its sequence → **branch divergence**.
 - Grid-stride's per-index unrank is ~ (≤48 loop steps + constant-memory reads), and
   adjacent threads follow nearly the same path, so it's cheaper than it looks.
+
+**Copy the matchup into a local before the hot loop.** Splitting the kernels into
+`.cuh` layers first passed `w.matchups[m]` to `count_matchup` by reference straight from
+global memory. Likely cause: the compiler can't prove the board writes don't alias it, so
+it must keep re-reading it. The codegen changed (56 registers, 144 × 576, flop case 255 → 284 ms).
+`const Matchup mu = w.matchups[m];` (one read, then registers) restored 64 registers and
+the old numbers. Check `REG`/`STACK` with `cuobjdump --dump-resource-usage` after refactors.
 
 **Block reduction vs per-thread atomics.** 110k threads all hitting the same three
 counters is a contention point, but it's a fixed cost at the end of the kernel:
