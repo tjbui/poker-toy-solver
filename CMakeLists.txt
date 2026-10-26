@@ -31,11 +31,15 @@ enable_testing()
 
 # ---- Headless libraries ----
 add_subdirectory(engine)            # equity engine (+ its tests)
-# add_subdirectory(solver)          # TODO: enable once solver/ has sources (CFR core + tests)
+add_subdirectory(solver)            # toy CFR solver: RPS + Kuhn (+ its tests)
 
 # ---- Terminal demo programs (examples/) ----
 # RPS regret-matching demo — standalone, no library deps.
 add_executable(rps_cfr examples/rps_cfr.cpp)
+
+# Kuhn poker solved with the CFR core.
+add_executable(kuhn_cfr examples/kuhn_cfr.cpp)
+target_link_libraries(kuhn_cfr PRIVATE solver)
 
 # Terminal equity calculator — links the engine (replaces the old HTTP backend).
 add_executable(equity_cli examples/equity_cli.cpp)

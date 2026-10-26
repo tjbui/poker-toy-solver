@@ -5,8 +5,8 @@ A C++17 project that merges two components:
 1. A poker equity engine — exact equity by enumerating every board runout,
    with interchangeable CPU and CUDA GPU backends that return identical results
 2. A toy poker solver built on CFR (Counterfactual Regret Minimization),
-   starting from the classic Rock-Paper-Scissors example and building toward
-   Kuhn poker.
+   written once against an abstract game and verified on Rock-Paper-Scissors
+   and Kuhn poker (reaches the known equilibrium, game value -1/18).
 
 ## Layout
 
@@ -23,9 +23,13 @@ poker-equity/
 │   │                 #   + gpu_backend.cu host side; stub when built without nvcc
 │   ├── src/equity.cpp  # compute_equity(): picks the backend
 │   └── tests/
-├── solver/       # toy CFR solver — headless library (skeleton)
+├── solver/       # toy CFR solver — header-only library
+│   ├── include/solver/cfr.h    # CfrTrainer<Game>: vanilla CFR written once for any game
+│   ├── include/solver/kuhn.h   # Kuhn poker;  rps.h: Rock-Paper-Scissors
+│   └── tests/                  # Kuhn reaches -1/18, (weighted) RPS reaches equilibrium
 └── examples/     # terminal programs that USE the libraries
-    ├── rps_cfr.cpp       # regret matching on Rock-Paper-Scissors
+    ├── rps_cfr.cpp       # regret matching on Rock-Paper-Scissors (standalone)
+    ├── kuhn_cfr.cpp      # Kuhn poker solved with the CFR core
     ├── equity_cli.cpp    # terminal equity calculator
     └── equity_bench.cpp  # CPU vs GPU benchmark
 ```
@@ -52,7 +56,7 @@ equity::EquityResult r = equity::compute_equity(req, opt);
 ```sh
 cmake -S . -B build
 cmake --build build
-ctest --test-dir build       # engine tests (+ GPU-vs-CPU exactness test on CUDA builds)
+ctest --test-dir build       # engine + solver tests (+ GPU-vs-CPU exactness test on CUDA builds)
 ```
 
 The CUDA backend builds automatically when CMake finds `nvcc`; otherwise the
@@ -62,13 +66,15 @@ project builds CPU-only (`gpu_available()` is false, `Backend::Gpu` throws).
 
 ```sh
 ./build/rps_cfr                                  # RPS self-play; average strategy -> [.33, .33, .33]
+./build/kuhn_cfr                                 # Kuhn poker: 12-infoset strategy, P1 value -> -1/18
 ./build/equity_cli AhKd 2c2d 7h8s9c              # exact equity, Auto backend
 ./build/equity_cli --backend cpu-multi AsAh KsKd # force a backend: auto|cpu-single|cpu-multi|gpu
 ./build/equity_cli --gpu "AA,KK" AKs             # shorthand for --backend gpu (CUDA builds only)
 ./build/equity_bench                             # CPU vs GPU benchmark
 ```
 
-Results and design notes: `docs/notes/cuda-notes.md`.
+Results and design notes: `docs/notes/cuda-notes.md` (GPU engine),
+`docs/concepts/cfr-kuhn-poker.md` (solver).
 
 ## Reference
 
